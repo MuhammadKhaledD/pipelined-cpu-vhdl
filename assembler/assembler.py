@@ -1,8 +1,4 @@
-#!/usr/bin/env python3
-import sys
-import os
-import argparse
-import re
+import sys, os, argparse, re
 
 OPCODES = {
     "NOP": 0b00000, "HLT": 0b00001, "SETC": 0b00010, "RET": 0b00011,
@@ -17,8 +13,7 @@ OPCODES = {
 IMM_FOLLOWS = {"LDM", "IADD", "JZ", "JN", "JC", "JMP", "CALL", "INT", "LDD", "STD"}
 
 RE_COMMENT = re.compile(r'[;#].*')
-RE_OFFSET = re.compile(r'([^\(]+)\(([^)]+)\)')
-
+RE_OFFSET = re.compile(r'([^\(]+)\(([^)]+)\)')    # captures "offset(base)"
 
 def parse_reg(reg_str):
     s = reg_str.strip().upper()
@@ -30,7 +25,6 @@ def parse_reg(reg_str):
     if not (0 <= n <= 7):
         raise ValueError(f"Register out of range '{reg_str}' (expect R0..R7)")
     return n
-
 
 def parse_int(t):
     t = t.strip()
@@ -49,75 +43,63 @@ def parse_int(t):
         raise ValueError(f"Invalid number '{t}'")
     return -v if neg else v
 
-
 def encode_instruction(m, ops_str):
     m = m.upper()
     opc = OPCODES.get(m)
     if opc is None:
         raise ValueError(f"Unknown mnemonic '{m}'")
 
+    # OPCODE[29:25], RDST[24:22], RSRC1[21:19], RSRC2[18:16], Unused[15:0]
     word = (opc & 0x1F) << 25
     rdst = rsrc1 = rsrc2 = 0
     ops = [o.strip() for o in ops_str.split(",") if o.strip()]
 
-    # Instructions with no operands
+    # no-operand instructions
     if m in ("NOP", "HLT", "SETC", "RET", "RTI"):
         if len(ops) != 0:
             raise ValueError(f"{m} takes no operands")
 
-    # Instructions with one source register
+    # single-source register
     elif m in ("PUSH", "OUT", "INC", "NOT"):
         if len(ops) != 1:
             raise ValueError(f"{m} requires 1 register")
         rsrc1 = parse_reg(ops[0])
 
-    # Instructions with one destination register
+    # single-destination register
     elif m in ("POP", "IN"):
         if len(ops) != 1:
             raise ValueError(f"{m} requires 1 register")
         rdst = parse_reg(ops[0])
 
-    # MOV: source, destination
     elif m == "MOV":
         if len(ops) != 2:
             raise ValueError("MOV Rsrc, Rdst")
-        rsrc1 = parse_reg(ops[0])
-        rdst = parse_reg(ops[1])
+        rsrc1 = parse_reg(ops[0]); rdst = parse_reg(ops[1])
 
-    # SWAP: two source registers
     elif m == "SWAP":
         if len(ops) != 2:
             raise ValueError("SWAP Rsrc1, Rsrc2")
-        rsrc1 = parse_reg(ops[0])
-        rsrc2 = parse_reg(ops[1])
+        rsrc1 = parse_reg(ops[0]); rsrc2 = parse_reg(ops[1])
 
-    # ALU operations: destination, source1, source2
     elif m in ("ADD", "SUB", "AND"):
         if len(ops) != 3:
             raise ValueError(f"{m} Rdst, Rsrc1, Rsrc2")
-        rdst = parse_reg(ops[0])
-        rsrc1 = parse_reg(ops[1])
-        rsrc2 = parse_reg(ops[2])
+        rdst = parse_reg(ops[0]); rsrc1 = parse_reg(ops[1]); rsrc2 = parse_reg(ops[2])
 
-    # LDM: destination, immediate
     elif m == "LDM":
         if len(ops) != 2:
             raise ValueError("LDM Rdst, IMM")
         rdst = parse_reg(ops[0])
 
-    # IADD: destination, source, immediate
     elif m == "IADD":
         if len(ops) != 3:
             raise ValueError("IADD Rdst, Rsrc, IMM")
-        rdst = parse_reg(ops[0])
-        rsrc1 = parse_reg(ops[1])
+        rdst = parse_reg(ops[0]); rsrc1 = parse_reg(ops[1])
 
-    # Jump/Call instructions: immediate only
     elif m in ("JZ", "JN", "JC", "JMP", "CALL", "INT"):
         if len(ops) != 1:
             raise ValueError(f"{m} requires 1 immediate operand")
 
-    # LDD: destination, offset(source)
     elif m == "LDD":
         if len(ops) != 2:
             raise ValueError("LDD Rdst, offset(Rsrc)")
@@ -127,7 +109,6 @@ def encode_instruction(m, ops_str):
             raise ValueError("LDD expects offset(Rsrc)")
         rsrc1 = parse_reg(mo.group(2).strip())
 
-    # STD: source, offset(source2)
     elif m == "STD":
         if len(ops) != 2:
             raise ValueError("STD Rsrc, offset(Rsrc2)")
@@ -137,11 +118,12 @@ def encode_instruction(m, ops_str):
             raise ValueError("STD expects offset(Rsrc)")
         rsrc2 = parse_reg(mo.group(2).strip())
 
+    # pack fields
     word |= (rdst & 7) << 22
     word |= (rsrc1 & 7) << 19
     word |= (rsrc2 & 7) << 16
-    return word
 
+    return word & 0xFFFFFFFF
 
 def get_immediate(m, ops_str):
     m = m.upper()
@@ -157,10 +139,9 @@ def get_immediate(m, ops_str):
         return parse_int(mo.group(1))
     raise ValueError(f"{m} has no immediate")
 
-
 def assemble_file(src, dst):
     words = []
-    with open(src) as f:
+    with open(src, 'r') as f:
         for i, line in enumerate(f, start=1):
             line = RE_COMMENT.sub("", line).strip()
             if not line:
@@ -171,42 +152,53 @@ def assemble_file(src, dst):
 
             try:
                 instr = encode_instruction(mnemonic, ops_str)
-                words.append(instr)
+                words.append(instr)                  # 1st 32-bit word: opcode+fields (IMM bits unused)
                 if mnemonic.upper() in IMM_FOLLOWS:
-                    words.append(get_immediate(mnemonic, ops_str))
+                    imm = get_immediate(mnemonic, ops_str)
+                    # Represent immediate as a 32-bit two's-complement value
+                    imm32 = imm & 0xFFFFFFFF
+                    words.append(imm32)             # 2nd 32-bit word: immediate (full 32-bit two's complement)
             except Exception as e:
                 raise ValueError(f"{src}:{i}: {e}")
 
-    with open(dst, "w") as f:
+    # write output as 32-bit binary strings, one per line
+    with open(dst, "w") as out:
         for w in words:
-            f.write(f"{w:032b}\n")
+            out.write(f"{w:032b}\n")
 
     print(f"Wrote {len(words)} words to {dst}")
 
-
 def main():
+
     prog = os.path.basename(sys.argv[0])
+    usage_line = f"usage: {prog} src.asm -o dst.txt"
 
-    parser = argparse.ArgumentParser(
-        prog=prog,
-        description="Assemble simple CPU assembly into 32-bit binary words.",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    if any(arg in ("-h", "--help") for arg in sys.argv[1:]):
+        print(usage_line)
+        sys.exit(0)
 
-    parser.add_argument("src", help="input assembly file (e.g., code.asm)")
-    parser.add_argument("-o", "--out", required=True,
-                        help="output text file (binary words)")
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("src", nargs=1)
+    parser.add_argument("-o", "--out", required=True)
 
     try:
-        args = parser.parse_args()
-        assemble_file(args.src, args.out)
+        ns, extras = parser.parse_known_args()
+    except SystemExit:
+        sys.stderr.write(usage_line + "\n")
+        sys.exit(1)
+
+    if extras:
+        sys.stderr.write(usage_line + "\n")
+        sys.exit(1)
+
+    try:
+        assemble_file(ns.src[0], ns.out)
     except FileNotFoundError:
         sys.stderr.write("Error: source file not found\n")
         sys.exit(1)
     except Exception as e:
         sys.stderr.write(f"Assembly error: {e}\n")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()
