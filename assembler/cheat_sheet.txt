@@ -1,0 +1,95 @@
+===============================
+ASSEMBLER CHEAT SHEET
+===============================
+
+BASIC USAGE
+    python assembler_simple_imm.py code.asm -o result.txt
+
+FILE FORMAT
+    • Output is raw 32-bit LITTLE-ENDIAN words.
+    • One instruction = one word.
+    • Instructions with immediates = TWO words:
+         [instruction word] + [32-bit immediate word].
+
+COMMENTS
+    ; comment
+    # comment
+
+IMMEDIATE FORMATS
+    123        → decimal
+    -5         → negative decimal
+    0x1A2F     → hex
+    0b101101   → binary
+
+****************************    
+****(labels NOT allowed)****
+****************************
+
+===============================
+INSTRUCTION CATEGORIES
+===============================
+
+NO-OPERAND
+    NOP
+    HLT
+    SETC
+    RET
+    RTI
+
+ONE-REGISTER
+    PUSH Rn
+    POP Rn
+    IN Rn
+    OUT Rn
+    INC Rn
+    NOT Rn
+
+TWO-REGISTER
+    MOV Rsrc, Rdst
+    SWAP Rsrc, Rdst
+
+THREE-REGISTER
+    ADD Rdst, Rsrc1, Rsrc2
+    SUB Rdst, Rsrc1, Rsrc2
+    AND Rdst, Rsrc1, Rsrc2
+
+===============================
+INSTRUCTIONS THAT EMIT A 32-BIT IMMEDIATE WORD
+===============================
+(These ALWAYS generate 2 words)
+
+    LDM   Rdst, IMM
+    IADD  Rdst, Rsrc, IMM
+    JZ    IMM
+    JN    IMM
+    JC    IMM
+    JMP   IMM
+    CALL  IMM
+    INT   IMM
+    LDD   Rdst, OFFSET(Rsrc)
+    STD   Rsrc, OFFSET(Rsrc2)
+
+OFFSET FORMS
+    LDD R1,  32(R2)
+    STD R3, -8(R0)
+    → next 32-bit word is the OFFSET.
+
+===============================
+SMALL EXAMPLE
+===============================
+    LDM R1, 0x100
+    ADD R2, R1, R1
+    JMP 0x10
+    HLT
+
+OUTPUT WORDS
+    word0: LDM instruction
+    word1: 0x00000100
+    word2: ADD instruction
+    word3: JMP instruction
+    word4: 0x00000010
+    word5: HLT instruction
+
+===============================
+END OF CHEAT SHEET
+===============================
