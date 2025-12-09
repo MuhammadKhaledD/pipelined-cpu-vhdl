@@ -1,7 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use ieee.std_logic_unsigned.all;
 
 entity SP_Register is
     port (
@@ -14,24 +13,21 @@ entity SP_Register is
 end entity SP_Register;
 
 architecture SP_Register_arch of SP_Register is
-    signal sp_internal : unsigned(31 downto 0)
-        := to_unsigned(262143, 32);
-
-    signal Past_SP : unsigned(31 downto 0) 
-        := to_unsigned(262143, 32);
+    signal sp_internal : std_logic_vector(31 downto 0) := d"262143"; -- Initial SP value
+    signal Past_SP    : std_logic_vector(31 downto 0) := d"262143";
 begin
-    write_proc : process(clk)
+    process(clk)
     begin
         if rising_edge(clk) then
-            Past_SP <= sp_internal;     
+            -- Write on rising edge
             if Plus = '1' then
-                sp_internal <= sp_internal + 1;
+                sp_internal <= std_logic_vector(unsigned(sp_internal) + 1);
             elsif Minus = '1' then
-                sp_internal <= sp_internal - 1;
-            end if;
+                sp_internal <= std_logic_vector(unsigned(sp_internal) - 1);
+            end if;            -- Read on falling edge
         end if;
     end process;
-            SP  <= std_logic_vector(sp_internal);
-            PSP <= std_logic_vector(Past_SP);
+            SP <= sp_internal;
+            PSP <= Past_SP;
+            Past_SP <= sp_internal;
 end architecture SP_Register_arch;
-
