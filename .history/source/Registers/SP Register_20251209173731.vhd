@@ -1,6 +1,5 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
 
 entity SP_Register is
     port (
@@ -22,14 +21,10 @@ begin
             -- Write on rising edge
             if Plus = '1' then
                 sp_internal <= std_logic_vector(unsigned(sp_internal) + 1);
-            elsif Minus = '1' then
-                sp_internal <= std_logic_vector(unsigned(sp_internal) - 1);
-            end if;
+            
         elsif falling_edge(clk) then
             -- Read on falling edge
             SP <= sp_internal;
-            PSP <= Past_SP;
-            Past_SP <= sp_internal;
         end if;
     end process;
 end architecture SP_Register_arch;

@@ -1,6 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
+
 
 entity SP_Register is
     port (
@@ -28,8 +28,6 @@ begin
         elsif falling_edge(clk) then
             -- Read on falling edge
             SP <= sp_internal;
-            PSP <= Past_SP;
-            Past_SP <= sp_internal;
         end if;
     end process;
 end architecture SP_Register_arch;
