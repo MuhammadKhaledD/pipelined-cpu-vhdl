@@ -34,4 +34,3 @@ begin
             SP  <= std_logic_vector(sp_internal);
             PSP <= std_logic_vector(Past_SP);
 end architecture SP_Register_arch;
-
