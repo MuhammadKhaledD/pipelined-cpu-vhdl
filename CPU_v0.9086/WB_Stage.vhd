@@ -6,26 +6,20 @@ ENTITY WB_Stage IS
     PORT (
         clk          : IN STD_LOGIC;
         rst          : IN STD_LOGIC;
-        RegWriteENWB : IN STD_LOGIC;
+
         WBSelWB      : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
         
         MemOutWB     : IN STD_LOGIC_VECTOR(31 DOWNTO 0); 
         EXOutWB      : IN STD_LOGIC_VECTOR(31 DOWNTO 0); 
         ImmWB        : IN STD_LOGIC_VECTOR(31 DOWNTO 0); 
-        
-        RdstWB       : IN STD_LOGIC_VECTOR(2 DOWNTO 0);         
-        -- Output to Register File
-        RegDataWB    : OUT STD_LOGIC_VECTOR(31 DOWNTO 0); -- The selected data to be written
-        RdstOutWB    : OUT STD_LOGIC_VECTOR(2 DOWNTO 0); -- Destination Register Address to Register File
-        RegWriteOutWB: OUT STD_LOGIC                     -- Final RegWrite Enable to Register File
-    );
+
+        RegDataWB    : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
+);
 END ENTITY;
 
 ARCHITECTURE Behavioral OF WB_Stage IS
 
 BEGIN
-    RegWriteOutWB <= RegWriteENWB;
-    RdstOutWB <= RdstWB;
     
     WITH WBSelWB SELECT
         RegDataWB <= EXOutWB   WHEN "00",
