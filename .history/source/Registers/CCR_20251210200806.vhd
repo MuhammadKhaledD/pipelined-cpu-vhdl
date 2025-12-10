@@ -14,39 +14,33 @@ entity CCR_Register is
 end CCR_Register;
 
 architecture Behavioral of CCR_Register is
-    signal CCR         : std_logic_vector(2 downto 0) := "000";
-    signal saved_flags : std_logic_vector(2 downto 0) := "000";
+    signal CCR : std_logic_vector(2 downto 0) := "000";  -- CCR<3:0>
+    signal  saved_flags       :  std_logic_vector(2 downto 0) := "000";  -- Saved flags for restore
+
+    
 begin
     process(clk, rst)
     begin
         if rst = '1' then
-            CCR         <= "000";
-            saved_flags <= "000";
-
+            CCR <= "000";
         elsif rising_edge(clk) then
-
-            -- Highest priority: restore on RTI
             if restore = '1' then
-                CCR <= saved_flags;
-
-            -- Next priority: preserve flags during interrupt
-            elsif preserve = '1' then
+                -- Restore flags from saved state (RTI instruction)
+                CCR(2 downto 0) <= saved_flags;
+            if preserve = '1' then
+                -- Keep current flags (for interrupt)
                 saved_flags <= CCR;
-
-            -- Normal update
             elsif enable = '1' then
-                CCR(0) <= Z_in;
-                CCR(1) <= N_in;
-                CCR(2) <= C_in;
+                -- Update flags normally
+                CCR(0) <= Z_in;  -- Zero flag
+                CCR(1) <= N_in;  -- Negative flag
+                CCR(2) <= C_in;  -- Carry flag
             end if;
-
         end if;
     end process;
 
-    Z_out    <= CCR(0);
-    N_out    <= CCR(1);
-    C_out    <= CCR(2);
-    CCR_out  <= CCR;
-
+    Z_out <= CCR(0);
+    N_out <= CCR(1);
+    C_out <= CCR(2);
+    CCR_out <= CCR;    
 end Behavioral;
-
