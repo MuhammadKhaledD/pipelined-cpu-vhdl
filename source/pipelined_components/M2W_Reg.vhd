@@ -39,7 +39,7 @@ begin
             ImmW <= NOP_DATA;
             RdstW <= REG_ADDR_NOP;
 
-        elsif rising_edge(clk) then
+        elsif falling_edge(clk) then
             if flush = '1' then
                 -- Flush: Clear RegWrite and all signals that affect control flow or register write
                 RegWriteEnW <= '0'; WbSelW <= '0';

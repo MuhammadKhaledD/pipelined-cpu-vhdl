@@ -29,16 +29,8 @@ begin
         end if;
     end process;
     
-    -- Read process: triggered on falling edge (second half of clock)
-    read_proc: process(clk, rst)
-    begin
-        if rst = '1' then
-            r_data1 <= x"0000_0000";
-            r_data2 <= x"0000_0000";
-        elsif falling_edge(clk) then
+    -- Read process:
             r_data1 <= registers(to_integer(unsigned(ra_1)));
             r_data2 <= registers(to_integer(unsigned(ra_2)));
-        end if;
-    end process;
     
 end Behavioral;
