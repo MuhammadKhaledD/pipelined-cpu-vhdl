@@ -20,15 +20,12 @@ architecture Memory_arch of Memory is
 begin
     process(clk)
     begin
-        if rising_edge(clk) then
-            -- Write operation on rising edge
-            if WriteEnable = '1' then
+        -- Write operation on rising edge
+        if rising_edge(clk) and WriteEnable = '1' then
                 memory(to_integer(unsigned(Address(17 downto 0)))) <= WriteData;
             end if;
-        elsif falling_edge(clk) then
-            -- Read operation on falling edge
-            ReadData <= memory(to_integer(unsigned(Address(17 downto 0))));
-        end if;
     end process;
+    -- read operation (combinational)
+    ReadData <= memory(to_integer(unsigned(Address(17 downto 0))));
     
 end architecture Memory_arch;

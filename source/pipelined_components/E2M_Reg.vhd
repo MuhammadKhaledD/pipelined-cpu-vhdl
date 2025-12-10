@@ -71,7 +71,7 @@ begin
             Imm_M <= NOP_DATA;
             Rdst_M <= REG_ADDR_NOP;
 
-        elsif rising_edge(clk) then
+        elsif falling_edge(clk) then
             if flush = '1' then
                 -- Flush: Clear all control signals to insert a NOP bubble
                 RET_M <= '0'; RTI_M <= '0'; CALL_M <= '0'; MEM_M <= '0'; MemSel_M <= '0';

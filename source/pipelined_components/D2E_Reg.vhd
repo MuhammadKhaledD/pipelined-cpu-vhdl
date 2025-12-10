@@ -36,7 +36,6 @@ entity ID_EX_Register is
         Rsrc1D          : in std_logic_vector(2 downto 0) := "000";
         Rsrc2D          : in std_logic_vector(2 downto 0) := "000";
         RdstD           : in std_logic_vector(2 downto 0) := "000";
-        PSPD            : in std_logic_vector(31 downto 0) := x"0000_0000"; 
         ImmF            : in std_logic_vector(31 downto 0) := x"0000_0000";
 
         -- Outputs to EX stage (Suffix '_E' for Execute)
@@ -68,7 +67,6 @@ entity ID_EX_Register is
         Rsrc1_E         : out std_logic_vector(2 downto 0) := "000";
         Rsrc2_E         : out std_logic_vector(2 downto 0) := "000";
         Rdst_E          : out std_logic_vector(2 downto 0) := "000";
-        PSP_E           : out std_logic_vector(31 downto 0) := x"0000_0000";
         Imm_E           : out std_logic_vector(31 downto 0) := x"0000_0000"
     );
 end ID_EX_Register;
@@ -91,11 +89,11 @@ begin
             AluOp_E <= ALU_NOP; JmpZ_E <= '0'; JmpC_E <= '0'; JmpN_E <= '0'; Jmp_E <= '0';
             ExOutSel_E <= '0'; LoadUse_E <= '0'; OutEn_E <= '0';
 
-            PC1_E <= NOP_DATA; RD1_E <= NOP_DATA; RD2_E <= NOP_DATA; PSP_E <= NOP_DATA;
+            PC1_E <= NOP_DATA; RD1_E <= NOP_DATA; RD2_E <= NOP_DATA;
             Imm_E <= NOP_DATA;
             Rsrc1_E <= REG_ADDR_NOP; Rsrc2_E <= REG_ADDR_NOP; Rdst_E <= REG_ADDR_NOP;
 
-        elsif rising_edge(clk) then
+        elsif falling_edge(clk) then
             if flush = '1' then
                 -- Flush (Branch Misprediction): Insert a NOP bubble by clearing all
                 -- control signals that would perform an action in later stages.
@@ -105,7 +103,7 @@ begin
                 AluOp_E <= ALU_NOP; JmpZ_E <= '0'; JmpC_E <= '0'; JmpN_E <= '0'; Jmp_E <= '0';
                 ExOutSel_E <= '0'; LoadUse_E <= '0'; OutEn_E <= '0';
                 
-                PC1_E <= NOP_DATA; RD1_E <= NOP_DATA; RD2_E <= NOP_DATA; PSP_E <= NOP_DATA;
+                PC1_E <= NOP_DATA; RD1_E <= NOP_DATA; RD2_E <= NOP_DATA;
                 Imm_E <= NOP_DATA;
                 Rsrc1_E <= REG_ADDR_NOP; Rsrc2_E <= REG_ADDR_NOP; Rdst_E <= REG_ADDR_NOP;
 
@@ -117,7 +115,7 @@ begin
                 AluOp_E <= AluOpD; JmpZ_E <= JmpZD; JmpC_E <= JmpCD; JmpN_E <= JmpND; Jmp_E <= JmpD;
                 ExOutSel_E <= ExOutSelD; LoadUse_E <= LoadUseD; OutEn_E <= OutEnD;
 
-                PC1_E <= PC1D; RD1_E <= RD1_D; RD2_E <= RD2_D; PSP_E <= PSPD; Imm_E <= ImmF;
+                PC1_E <= PC1D; RD1_E <= RD1_D; RD2_E <= RD2_D; Imm_E <= ImmF;
                 Rsrc1_E <= Rsrc1D; Rsrc2_E <= Rsrc2D; Rdst_E <= RdstD;
             -- else (enable = '0'): Hold current values (Stall)
             end if;
