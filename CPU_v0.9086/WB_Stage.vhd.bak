@@ -32,5 +32,6 @@ BEGIN
                      ImmWB     WHEN "01",
                      MemOutWB  WHEN "10",
                      EXOutWB   WHEN OTHERS;
+    
 
 END ARCHITECTURE;
