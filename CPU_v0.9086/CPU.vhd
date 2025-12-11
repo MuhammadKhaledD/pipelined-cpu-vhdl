@@ -14,23 +14,6 @@ END ENTITY;
 
 ARCHITECTURE struct OF CPU IS
     -- Signal and component declarations
-    component ALU is
-    port (
-        SrcA        : in  std_logic_vector(31 downto 0);
-        SrcB        : in  std_logic_vector(31 downto 0);
-        ALU_OPctrl  : in  std_logic_vector(3 downto 0);
-        RSTZF       : in  std_logic;
-        RSTCF       : in  std_logic;
-        RSTNF       : in  std_logic;
-
-        AluOut      : out std_logic_vector(31 downto 0);
-        ZF          : out std_logic;
-        CF          : out std_logic;
-        NF          : out std_logic;
-        FEN         : out std_logic
-        
-    );
-    end component;
     component Memory is
     port (
         clk        : in  std_logic;
@@ -53,74 +36,6 @@ ARCHITECTURE struct OF CPU IS
         r_data1, r_data2 : out std_logic_vector(31 downto 0) := x"0000_0000"
     );
     end component;
-
-    component CCR_Register is
-    port(
-        clk, rst          : in std_logic := '0';
-        enable            : in std_logic := '0';
-        Z_in, N_in, C_in  : in std_logic := '0'; -- from ALU
-        preserve          : in std_logic := '0';  -- For interrupt (preserve current flags)
-        restore           : in std_logic := '0';  -- For RTI (restore saved flags)
-
-        Z_out, N_out, C_out : out std_logic := '0';  -- Output flags
-        CCR_out             : out std_logic_vector(2 downto 0) := "000"  -- Full CCR output
-    );
-    end component;
-
-    component PC_Register is
-    port (
-        clk         : in  std_logic;
-        en          : in  std_logic;
-        PC_src      : in  std_logic_vector(31 downto 0);
-
-        PC_out      : out std_logic_vector(31 downto 0)
-    );
-    end component;
-
-    component SP_Register is
-    port (
-        clk            : in  std_logic;
-        Plus           : in  std_logic;
-        Minus          : in  std_logic;
-
-        PSP            : out  std_logic_vector(31 downto 0);
-        SP             : out std_logic_vector(31 downto 0)
-    );
-    end component SP_Register;
-
-    component cu is
-       port(
-          clk    : in  std_logic;
-          opcode : in  std_logic_vector(4 downto 0);
-
-      SwapCtrl      : out std_logic_vector(1-1 downto 0);
-      IsImm         : out std_logic_vector(1-1 downto 0);
-      HLT           : out std_logic_vector(1-1 downto 0);
-      RetD          : out std_logic_vector(1-1 downto 0);
-      PopD          : out std_logic_vector(1-1 downto 0);
-      RtiD          : out std_logic_vector(1-1 downto 0);
-      PushD         : out std_logic_vector(1-1 downto 0);
-      Int1D         : out std_logic_vector(1-1 downto 0);
-      Int2D         : out std_logic_vector(1-1 downto 0);
-      CallD         : out std_logic_vector(1-1 downto 0);
-      MemDLoadStore : out std_logic_vector(1-1 downto 0);
-      MemSelD       : out std_logic_vector(1-1 downto 0);
-      RegWriteEnD   : out std_logic_vector(1-1 downto 0);
-      WbSelD        : out std_logic_vector(2-1 downto 0);
-      SwapD         : out std_logic_vector(2-1 downto 0);
-      MemWriteD     : out std_logic_vector(1-1 downto 0);
-      AluOpD        : out std_logic_vector(4-1 downto 0);
-      JmpZD         : out std_logic_vector(1-1 downto 0);
-      JmpCD         : out std_logic_vector(1-1 downto 0);
-      JmpND         : out std_logic_vector(1-1 downto 0);
-      JmpD          : out std_logic_vector(1-1 downto 0);
-      ExOutSelD     : out std_logic_vector(1-1 downto 0);
-      NotIncSignal  : out std_logic_vector(1-1 downto 0);
-      LoadUseD      : out std_logic_vector(1-1 downto 0);
-      OutEnD        : out std_logic_vector(1-1 downto 0)
-       );
-    end component;
-
     component IF_ID_Register is
         port(
             clk, rst     : in std_logic := '0';
@@ -274,6 +189,144 @@ ARCHITECTURE struct OF CPU IS
             WbSelW          : out std_logic := '0'
         );
     end component;
+
+        component Decode_Stage  IS
+        PORT (
+            clk : IN STD_LOGIC;
+            rst : IN STD_LOGIC;
+            instruction : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+            RSrc1D  : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+            RSrc2D  : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+            Rdst    : OUT STD_LOGIC_VECTOR(2 DOWNTO 0); 
+
+            SwapCtrl      : out std_logic_vector(1-1 downto 0);
+            IsImm         : out std_logic_vector(1-1 downto 0);
+            HLT           : out std_logic_vector(1-1 downto 0);
+            RetD          : out std_logic_vector(1-1 downto 0);
+            PopD          : out std_logic_vector(1-1 downto 0);
+            RtiD          : out std_logic_vector(1-1 downto 0);
+            PushD         : out std_logic_vector(1-1 downto 0);
+            Int1D         : out std_logic_vector(1-1 downto 0);
+            Int2D         : out std_logic_vector(1-1 downto 0);
+            CallD         : out std_logic_vector(1-1 downto 0);
+            MemDLoadStore : out std_logic_vector(1-1 downto 0);
+            MemSelD       : out std_logic_vector(1-1 downto 0);
+            RegWriteEnD   : out std_logic_vector(1-1 downto 0);
+            WbSelD        : out std_logic_vector(2-1 downto 0);
+            SwapD         : out std_logic_vector(2-1 downto 0);
+            MemWriteD     : out std_logic_vector(1-1 downto 0);
+            AluOpD        : out std_logic_vector(4-1 downto 0);
+            JmpZD         : out std_logic_vector(1-1 downto 0);
+            JmpCD         : out std_logic_vector(1-1 downto 0);
+            JmpND         : out std_logic_vector(1-1 downto 0);
+            JmpD          : out std_logic_vector(1-1 downto 0);
+            ExOutSelD     : out std_logic_vector(1-1 downto 0);
+            LoadUseD      : out std_logic_vector(1-1 downto 0);
+            OutEnD        : out std_logic_vector(1-1 downto 0)
+        );
+    END component;
+
+    component Memory_Fetch_Stages IS
+        PORT (
+            clk : IN STD_LOGIC;
+            reset,interrupt : IN STD_LOGIC;
+
+            Branch  : IN STD_LOGIC;
+            SwapCtrl : IN STD_LOGIC;
+            HLT    : IN STD_LOGIC;
+
+            RETM  : IN STD_LOGIC;
+            POPM  : IN STD_LOGIC;
+            RTIM  : IN STD_LOGIC;
+            PUSHM : IN STD_LOGIC;
+            INT1M : IN STD_LOGIC;
+            INT2M : IN STD_LOGIC;
+            CALLM : IN STD_LOGIC;
+
+            MemM        : IN STD_LOGIC;
+            MemSelM     : IN STD_LOGIC;
+            RegWriteENM : IN STD_LOGIC;
+
+            PC1M  : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+            OutEnM : IN STD_LOGIC;
+            ExOutM : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+            RD2M   : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+            ImmM   : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+            RdstM  : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+            PSPM   : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+            SP     : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+            ImmE    : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+            RegWriteEnWM : OUT STD_LOGIC;
+            EXOutWM      : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+            ImmWM        : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+            RdstWM       : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+            outPort      : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+            MemAddr           : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+            MemWriteData      : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+            PC1f : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
+        );
+    END component;
+    
+    component Excute_Stage  IS
+        PORT (
+            clk : IN STD_LOGIC;
+            rst : IN STD_LOGIC;
+
+            RD1     : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+            RD2     : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+            RSrc1D  : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+            RSrc2D  : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+            Rdst    : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+            ImmD    : IN std_logic_vector(31 downto 0);
+            InputPort : IN std_logic_vector(31 downto 0);
+            interrupt  : IN std_logic_vector(0 downto 0);
+
+            SwapE         : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+            AluOpE        : IN std_logic_vector(3 downto 0);
+            JmpZDE        : IN std_logic_vector(0 downto 0);
+            JmpCE         : IN std_logic_vector(0 downto 0);
+            JmpNE         : IN std_logic_vector(0 downto 0);
+            JmpE          : IN std_logic_vector(0 downto 0);
+            IsImmE        : IN std_logic_vector(0 downto 0);
+            ExOutSelE     : IN std_logic_vector(0 downto 0);
+            LoadUseE      : IN std_logic_vector(0 downto 0);
+
+            CallE         : IN std_logic_vector(0 downto 0);
+            RtiE          : IN std_logic_vector(0 downto 0);
+            RetE          : IN std_logic_vector(0 downto 0);
+            Int1E         : IN std_logic_vector(0 downto 0);
+            PopE          : IN std_logic_vector(0 downto 0);
+            PushE         : IN std_logic_vector(0 downto 0);
+
+            Branch        : OUT std_logic_vector(0 downto 0);
+            PSP           : out  std_logic_vector(31 downto 0);
+            SP            : out std_logic_vector(31 downto 0);
+            RdstE         : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+            ImmE          : OUT std_logic_vector(31 downto 0);
+            RD2E          : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+            ExoutE        : OUT std_logic_vector(31 downto 0)
+        );
+    END component;
+
+    component WB_Stage IS
+        PORT (
+            clk          : IN STD_LOGIC;
+            rst          : IN STD_LOGIC;
+
+            WBSelWB      : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+            
+            MemOutWB     : IN STD_LOGIC_VECTOR(31 DOWNTO 0); 
+            EXOutWB      : IN STD_LOGIC_VECTOR(31 DOWNTO 0); 
+            ImmWB        : IN STD_LOGIC_VECTOR(31 DOWNTO 0); 
+
+            RegDataWB    : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
+    );
+    END component;
 
 
     ----------------------------------------------------------------

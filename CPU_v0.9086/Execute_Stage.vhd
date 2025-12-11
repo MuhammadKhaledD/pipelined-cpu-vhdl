@@ -2,7 +2,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
 
-ENTITY Fetch_Stage  IS
+ENTITY Excute_Stage  IS
     PORT (
         clk : IN STD_LOGIC;
         rst : IN STD_LOGIC;
@@ -43,7 +43,7 @@ ENTITY Fetch_Stage  IS
     );
 END ENTITY;
 
-ARCHITECTURE struct OF Fetch_Stage IS
+ARCHITECTURE struct OF Excute_Stage IS
 
     ----------------------------------------------------------------
     -- Component declarations (matching your entities)

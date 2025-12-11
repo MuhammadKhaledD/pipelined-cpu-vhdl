@@ -6,13 +6,13 @@ ENTITY Decode_Stage  IS
     PORT (
         clk : IN STD_LOGIC;
         rst : IN STD_LOGIC;
-        RegWriteENWB : IN STD_LOGIC;
-        RegWriteWB : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-        RegDataWB : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        -- RegWriteENWB : IN STD_LOGIC;
+        -- RegWriteWB : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+        -- RegDataWB : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         instruction : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
 
-        RD1     : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-        RD2     : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        -- RD1     : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        -- RD2     : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         RSrc1D  : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
         RSrc2D  : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
         Rdst    : OUT STD_LOGIC_VECTOR(2 DOWNTO 0); 
@@ -121,22 +121,22 @@ begin
     -- Reads: ra_1, ra_2 (read-anytime)
     -- Writes: wa/w_data when RegWriteENWB='1' on positive edge inside RegFile
     ----------------------------------------------------------------
-    RegFile_inst : entity work.RegFile
-        port map (
-            clk        => clk,
-            rst        => rst,
-            RegWriteEn => RegWriteENWB,
-            wa         => RegWriteWB,   -- write address from WB stage (input port)
-            w_data     => RegDataWB,    -- write data from WB stage (input port)
-            ra_1       => s_Rsrc1,
-            ra_2       => s_Rsrc2,
-            r_data1    => s_RD1,
-            r_data2    => s_RD2
-        );
+    -- RegFile_inst : entity work.RegFile
+    --     port map (
+    --         clk        => clk,
+    --         rst        => rst,
+    --         RegWriteEn => RegWriteENWB,
+    --         wa         => RegWriteWB,   -- write address from WB stage (input port)
+    --         w_data     => RegDataWB,    -- write data from WB stage (input port)
+    --         ra_1       => s_Rsrc1,
+    --         ra_2       => s_Rsrc2,
+    --         r_data1    => s_RD1,
+    --         r_data2    => s_RD2
+    --     );
 
-    -- drive the decode outputs RD1/RD2 from regfile read data
-    RD1 <= s_RD1;
-    RD2 <= s_RD2;
+    -- -- drive the decode outputs RD1/RD2 from regfile read data
+    -- RD1 <= s_RD1;
+    -- RD2 <= s_RD2;
 
     ----------------------------------------------------------------
     -- cu instantiation

@@ -2,11 +2,14 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
 
-ENTITY Memory_Stage IS
+ENTITY Memory_Fetch_Stages IS
     PORT (
         clk : IN STD_LOGIC;
-        rst : IN STD_LOGIC;
-	reset,interrupt : IN STD_LOGIC;
+	    reset,interrupt : IN STD_LOGIC;
+
+        Branch  : IN STD_LOGIC;
+        SwapCtrl : IN STD_LOGIC;
+        HLT    : IN STD_LOGIC;
 
         RETM  : IN STD_LOGIC;
         POPM  : IN STD_LOGIC;
@@ -19,9 +22,7 @@ ENTITY Memory_Stage IS
         MemM        : IN STD_LOGIC;
         MemSelM     : IN STD_LOGIC;
         RegWriteENM : IN STD_LOGIC;
-        MemWriteM   : IN STD_LOGIC;
 
-	PC  : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         PC1M  : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         OutEnM : IN STD_LOGIC;
         ExOutM : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -31,61 +32,102 @@ ENTITY Memory_Stage IS
         PSPM   : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         SP     : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
 
+        ImmE    : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+
         RegWriteEnWM : OUT STD_LOGIC;
-        MemOutM      : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         EXOutWM      : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         ImmWM        : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-        RdstWM       : OUT STD_LOGIC_VECTOR(2 DOWNTO 0)
+        RdstWM       : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+        outPort      : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+        MemAddr           : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        MemWriteData      : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+        PC1f : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
     );
 END ENTITY;
 
-ARCHITECTURE struct OF Memory_Stage IS
+ARCHITECTURE struct OF Memory_Fetch_Stages IS
 
     SIGNAL AddressM   : STD_LOGIC_VECTOR(31 DOWNTO 0);
     SIGNAL WriteDataM : STD_LOGIC_VECTOR(31 DOWNTO 0);
-    SIGNAL ReadDataM  : STD_LOGIC_VECTOR(31 DOWNTO 0);
 
-    SIGNAL S0 : STD_LOGIC;
-    SIGNAL S1 : STD_LOGIC;
-    SIGNAL S2 : STD_LOGIC;
+    SIGNAL S0M : STD_LOGIC;
+    SIGNAL S1M : STD_LOGIC;
+    SIGNAL S2M : STD_LOGIC;
 
-    TYPE mem_t IS ARRAY (0 to 262143) OF STD_LOGIC_VECTOR(31 DOWNTO 0);
-    SIGNAL RAM : mem_t := (OTHERS => (OTHERS => '0'));
+    SIGNAL S0F : STD_LOGIC;
+    SIGNAL S1F : STD_LOGIC;
+    SIGNAL SelPC : STD_LOGIC;
 
-    SIGNAL addr_index : INTEGER RANGE 0 TO 262143;
+    signal PC_addr : STD_LOGIC_VECTOR(31 DOWNTO 0);
+    signal PC_src_s  : STD_LOGIC_VECTOR(31 DOWNTO 0);
+    signal PC_out_s : STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+    component PC_Register is
+        port (
+            clk       : in  std_logic;
+            en     : in  std_logic;
+            PC_src     : in  std_logic_vector(31 downto 0);
+            PC_out    : out std_logic_vector(31 downto 0)
+        );
+    end component;
 
 BEGIN
 
+    -- outPort assignment
+    outPort <= ExOutM when OutEnM = '1' else (others => '0');
     -------------------------------------------------
     -- Address MUX
     -------------------------------------------------
-    S0 <= MemM OR INT2M;
-    S1 <= PUSHM OR CALLM OR interrupt OR INT1M;
-    S2 <= POPM OR RTIM OR RETM;
+    ----
+    -- fetch stage
+    ------------------------------
+    S0F <= Branch OR reset or interrupt;
+    S1F <= INT2M OR reset OR interrupt or RTIM OR RETM;
+    SelPC <= SwapCtrl OR HLT;
 
-    AddressM <= PC WHEN (S2 ='0' AND S1 ='0' AND S0 = '0') ELSE
-		ExOutM WHEN (S2 ='0' AND S1 ='0' AND S0 = '1') ELSE
-		PSPM WHEN (S2 ='0' AND S1 ='1' AND S0 = '0') ELSE
-		SP WHEN (S2 ='0' AND S1 ='1' AND S0 = '1') ELSE
-		(others=>'0') WHEN (reset='1' OR interrupt='0') ELSE
-		(31 DOWNTO 1 => '0') & '1';
+
+    PC_src_s <= PC_addr when (S1F='0' and S0F='0') else
+                ExOutM when (S1F='0' and S0F='1') else
+                (others => '0');
+
+    PCport : entity work.PC_Register
+        port map (
+            clk    => clk,
+            en     => not SelPC,
+            PC_src => PC_src_s,
+            PC_out => PC_out_s
+        );
+
+    PC_addr <= std_logic_vector(unsigned(PC_out_s) + 1);
+    PC1f <= PC_addr;
+
+
     -------------------------------------------------
-    -- Write Data MUX
-    -------------------------------------------------
+    -- memory stage
+    
+    S0M <= (MemM OR INT2M) OR (POPM OR RTIM OR RETM);
+    S1M <= (PUSHM OR CALLM OR interrupt OR INT1M) OR (POPM OR RTIM OR RETM);
+    S2M <= (reset OR interrupt);
+
+    AddressM <= PC_out_s                              when (S2M='0' and S1M='0' and S0M='0') else   -- 0
+                ExOutM                           when (S2M='0' and S1M='0' and S0M='1') else   -- 1
+                PSPM                             when (S2M='0' and S1M='1' and S0M='0') else   -- 2
+                SP                               when (S2M='0' and S1M='1' and S0M='1') else   -- 3
+                (others => '0')                  when (reset='1' and interrupt='0') else    -- 4 → small mux = 0
+                (31 downto 1 => '0') & '1';                                                -- 4 → small mux = 1
+
+    -- -------------------------------------------------
+    -- -- Write Data MUX
+    -- -------------------------------------------------
     WriteDataM <= RD2M WHEN MemSelM='0' ELSE
                   PC1M WHEN interrupt='0' ELSE
                   std_logic_vector(unsigned(PC1M) - 1);
 
 
-    addr_index <= to_integer(unsigned(AddressM(17 DOWNTO 0)));
-    ReadDataM <= RAM(addr_index);
-
-    -------------------------------------------------
-    -- Output
-    -------------------------------------------------
-    MemOutM <= ReadDataM WHEN MemWriteM='0' ELSE
-               (others => '0');
-
+    MemAddr <= AddressM;
+    MemWriteData <= WriteDataM;
 
     -------------------------------------------------
     -- Forward to WriteBack
