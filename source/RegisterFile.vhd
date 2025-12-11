@@ -11,7 +11,7 @@ entity RegFile is
         ra_1, ra_2    : in std_logic_vector(2 downto 0) := "000"; 
         r_data1, r_data2 : out std_logic_vector(31 downto 0) := x"0000_0000"
     );
-end RegFile;
+end entity RegFile;
 
 architecture Behavioral of RegFile is
     type reg_array_t is array (0 to 7) of std_logic_vector(31 downto 0);

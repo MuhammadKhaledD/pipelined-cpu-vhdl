@@ -4,66 +4,67 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity cu is
-   generic (
-      SWAP_WIDTH       : natural := 1;
-      ISIMM_WIDTH      : natural := 1;
-      HLT_WIDTH        : natural := 1;
-      RETD_WIDTH       : natural := 1;
-      POPD_WIDTH       : natural := 1;
-      RTID_WIDTH       : natural := 1;
-      PUSHD_WIDTH      : natural := 1;
-      INT1D_WIDTH      : natural := 1;
-      INT2D_WIDTH      : natural := 1;
-      CALLD_WIDTH      : natural := 1;
-      MEMDS_WIDTH      : natural := 1;
-      MEMSELD_WIDTH    : natural := 1;
-      REGWEN_WIDTH     : natural := 1;
-      WBSELD_WIDTH     : natural := 2;
-      SWAPD_WIDTH      : natural := 2;
-      MEMWRITED_WIDTH  : natural := 1;
-      ALUOPD_WIDTH     : natural := 4;
-      JMZ_WIDTH        : natural := 1;
-      JMC_WIDTH        : natural := 1;
-      JMN_WIDTH        : natural := 1;
-      JMPD_WIDTH       : natural := 1;
-      EXOUT_WIDTH      : natural := 1;
-      NOTINC_WIDTH     : natural := 1;
-      LOADUSE_WIDTH    : natural := 1;
-      OUTEN_WIDTH      : natural := 1
-   );
    port(
       clk    : in  std_logic;
       opcode : in  std_logic_vector(4 downto 0);
 
-      SwapCtrl      : out std_logic_vector(SWAP_WIDTH-1 downto 0);
-      IsImm         : out std_logic_vector(ISIMM_WIDTH-1 downto 0);
-      HLT           : out std_logic_vector(HLT_WIDTH-1 downto 0);
-      RetD          : out std_logic_vector(RETD_WIDTH-1 downto 0);
-      PopD          : out std_logic_vector(POPD_WIDTH-1 downto 0);
-      RtiD          : out std_logic_vector(RTID_WIDTH-1 downto 0);
-      PushD         : out std_logic_vector(PUSHD_WIDTH-1 downto 0);
-      Int1D         : out std_logic_vector(INT1D_WIDTH-1 downto 0);
-      Int2D         : out std_logic_vector(INT2D_WIDTH-1 downto 0);
-      CallD         : out std_logic_vector(CALLD_WIDTH-1 downto 0);
-      MemDLoadStore : out std_logic_vector(MEMDS_WIDTH-1 downto 0);
-      MemSelD       : out std_logic_vector(MEMSELD_WIDTH-1 downto 0);
-      RegWriteEnD   : out std_logic_vector(REGWEN_WIDTH-1 downto 0);
-      WbSelD        : out std_logic_vector(WBSELD_WIDTH-1 downto 0);
-      SwapD         : out std_logic_vector(SWAPD_WIDTH-1 downto 0);
-      MemWriteD     : out std_logic_vector(MEMWRITED_WIDTH-1 downto 0);
-      AluOpD        : out std_logic_vector(ALUOPD_WIDTH-1 downto 0);
-      JmpZD         : out std_logic_vector(JMZ_WIDTH-1 downto 0);
-      JmpCD         : out std_logic_vector(JMC_WIDTH-1 downto 0);
-      JmpND         : out std_logic_vector(JMN_WIDTH-1 downto 0);
-      JmpD          : out std_logic_vector(JMPD_WIDTH-1 downto 0);
-      ExOutSelD     : out std_logic_vector(EXOUT_WIDTH-1 downto 0);
-      NotIncSignal  : out std_logic_vector(NOTINC_WIDTH-1 downto 0);
-      LoadUseD      : out std_logic_vector(LOADUSE_WIDTH-1 downto 0);
-      OutEnD        : out std_logic_vector(OUTEN_WIDTH-1 downto 0)
+      SwapCtrl      : out std_logic_vector(1-1 downto 0);
+      IsImm         : out std_logic_vector(1-1 downto 0);
+      HLT           : out std_logic_vector(1-1 downto 0);
+      RetD          : out std_logic_vector(1-1 downto 0);
+      PopD          : out std_logic_vector(1-1 downto 0);
+      RtiD          : out std_logic_vector(1-1 downto 0);
+      PushD         : out std_logic_vector(1-1 downto 0);
+      Int1D         : out std_logic_vector(1-1 downto 0);
+      Int2D         : out std_logic_vector(1-1 downto 0);
+      CallD         : out std_logic_vector(1-1 downto 0);
+      MemDLoadStore : out std_logic_vector(1-1 downto 0);
+      MemSelD       : out std_logic_vector(1-1 downto 0);
+      RegWriteEnD   : out std_logic_vector(1-1 downto 0);
+      WbSelD        : out std_logic_vector(2-1 downto 0);
+      SwapD         : out std_logic_vector(2-1 downto 0);
+      MemWriteD     : out std_logic_vector(1-1 downto 0);
+      AluOpD        : out std_logic_vector(4-1 downto 0);
+      JmpZD         : out std_logic_vector(1-1 downto 0);
+      JmpCD         : out std_logic_vector(1-1 downto 0);
+      JmpND         : out std_logic_vector(1-1 downto 0);
+      JmpD          : out std_logic_vector(1-1 downto 0);
+      ExOutSelD     : out std_logic_vector(1-1 downto 0);
+      NotIncSignal  : out std_logic_vector(1-1 downto 0);
+      LoadUseD      : out std_logic_vector(1-1 downto 0);
+      OutEnD        : out std_logic_vector(1-1 downto 0)
    );
 end cu;
 
 architecture control_unit of cu is
+
+
+   -- Width constants was generic before we try jus no to break the code
+constant SWAP_WIDTH       : natural := 1;
+constant ISIMM_WIDTH      : natural := 1;
+constant HLT_WIDTH        : natural := 1;
+constant RETD_WIDTH       : natural := 1;
+constant POPD_WIDTH       : natural := 1;
+constant RTID_WIDTH       : natural := 1;
+constant PUSHD_WIDTH      : natural := 1;
+constant INT1D_WIDTH      : natural := 1;
+constant INT2D_WIDTH      : natural := 1;
+constant CALLD_WIDTH      : natural := 1;
+constant MEMDS_WIDTH      : natural := 1;
+constant MEMSELD_WIDTH    : natural := 1;
+constant REGWEN_WIDTH     : natural := 1;
+constant WBSELD_WIDTH     : natural := 2;
+constant SWAPD_WIDTH      : natural := 2;
+constant MEMWRITED_WIDTH  : natural := 1;
+constant ALUOPD_WIDTH     : natural := 4;
+constant JMZ_WIDTH        : natural := 1;
+constant JMC_WIDTH        : natural := 1;
+constant JMN_WIDTH        : natural := 1;
+constant JMPD_WIDTH       : natural := 1;
+constant EXOUT_WIDTH      : natural := 1;
+constant NOTINC_WIDTH     : natural := 1;
+constant LOADUSE_WIDTH    : natural := 1;
+constant OUTEN_WIDTH      : natural := 1;
 
    -- Opcodes (5)
    constant OPC_SWAP : std_logic_vector(4 downto 0) := "10010"; -- 15

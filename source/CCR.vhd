@@ -9,7 +9,7 @@ entity CCR_Register is
         preserve          : in std_logic := '0';  -- For interrupt (preserve current flags)
         restore           : in std_logic := '0';  -- For RTI (restore saved flags)
         Z_out, N_out, C_out : out std_logic := '0';  -- Output flags
-        CCR_out           : out std_logic_vector(2 downto 0) := "000";  -- Full CCR output
+        CCR_out           : out std_logic_vector(2 downto 0) := "000"  -- Full CCR output
     );
 end CCR_Register;
 
@@ -18,7 +18,7 @@ architecture Behavioral of CCR_Register is
     signal saved_flags : std_logic_vector(2 downto 0) := "000";
 begin
     process(clk, rst)
-    begin
+    begin   
         if rst = '1' then
             CCR         <= "000";
             saved_flags <= "000";
