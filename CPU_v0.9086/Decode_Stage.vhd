@@ -15,7 +15,7 @@ ENTITY Decode_Stage  IS
         RD2     : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         RSrc1D  : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
         RSrc2D  : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
-        Rdst    : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+        Rdst    : OUT STD_LOGIC_VECTOR(2 DOWNTO 0); 
 
         SwapCtrl      : out std_logic_vector(1-1 downto 0);
         IsImm         : out std_logic_vector(1-1 downto 0);
