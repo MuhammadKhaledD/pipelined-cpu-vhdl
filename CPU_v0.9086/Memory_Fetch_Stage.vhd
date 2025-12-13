@@ -5,7 +5,7 @@ USE ieee.numeric_std.ALL;
 ENTITY Memory_Fetch_Stages IS
     PORT (
         clk : IN STD_LOGIC;
-	    reset,interrupt : IN STD_LOGIC;
+	reset,interrupt : IN STD_LOGIC;
 
         Branch  : IN STD_LOGIC;
         SwapCtrl : IN STD_LOGIC;
@@ -22,6 +22,7 @@ ENTITY Memory_Fetch_Stages IS
         MemM        : IN STD_LOGIC;
         MemSelM     : IN STD_LOGIC;
         RegWriteENM : IN STD_LOGIC;
+	MemWriteM   : IN STD_LOGIC;
 
         PC1M  : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         OutEnM : IN STD_LOGIC;
@@ -43,7 +44,9 @@ ENTITY Memory_Fetch_Stages IS
         MemAddr           : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         MemWriteData      : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
 
-        PC1f : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
+        PC1f : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+	MemWriteEnOut : OUT STD_LOGIC
     );
 END ENTITY;
 
@@ -121,13 +124,15 @@ BEGIN
     -- -------------------------------------------------
     -- -- Write Data MUX
     -- -------------------------------------------------
-    WriteDataM <= RD2M WHEN MemSelM='0' ELSE
-                  PC1M WHEN interrupt='0' ELSE
+    	WriteDataM <= RD2M WHEN MemSelM='0' ELSE
+         	      PC1M WHEN interrupt='0' ELSE
                   std_logic_vector(unsigned(PC1M) - 1);
 
 
-    MemAddr <= AddressM;
-    MemWriteData <= WriteDataM;
+    	MemAddr <= AddressM;
+    	MemWriteData <= WriteDataM;
+
+        MemWriteEnOut <= MemWriteM OR PUSHM OR CALLM OR INT1M OR INT2M;
 
     -------------------------------------------------
     -- Forward to WriteBack
