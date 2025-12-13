@@ -22,7 +22,6 @@ ENTITY Memory_Fetch_Stages IS
         MemM        : IN STD_LOGIC;
         MemSelM     : IN STD_LOGIC;
         RegWriteENM : IN STD_LOGIC;
-	MemWriteM   : IN STD_LOGIC;
 
         PC1M  : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         OutEnM : IN STD_LOGIC;
@@ -44,9 +43,7 @@ ENTITY Memory_Fetch_Stages IS
         MemAddr           : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         MemWriteData      : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
 
-        PC1f : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-
-	MemWriteEnOut : OUT STD_LOGIC
+        PC1f : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
     );
 END ENTITY;
 
@@ -131,9 +128,6 @@ BEGIN
 
     	MemAddr <= AddressM;
     	MemWriteData <= WriteDataM;
-
-        MemWriteEnOut <= MemWriteM OR PUSHM OR CALLM OR INT1M OR INT2M;
-
     -------------------------------------------------
     -- Forward to WriteBack
     -------------------------------------------------
