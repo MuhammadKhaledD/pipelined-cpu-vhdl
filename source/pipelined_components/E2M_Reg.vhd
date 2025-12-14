@@ -11,7 +11,6 @@ entity EX_MEM_Register is
         RD2_E           : in std_logic_vector(31 downto 0) := x"0000_0000"; -- Data for Memory Write
         PC1_E           : in std_logic_vector(31 downto 0) := x"0000_0000"; -- PC + 1
         PSP_E           : in std_logic_vector(31 downto 0) := x"0000_0000"; -- Stack Pointer Value
-        Imm_E           : in std_logic_vector(31 downto 0) := x"0000_0000"; -- Immediate Value (NEW)
         
         Rdst_E          : in std_logic_vector(2 downto 0) := "000"; -- Destination Register Address
         
@@ -21,7 +20,7 @@ entity EX_MEM_Register is
         MEM_E           : in std_logic := '0';     -- Generic Memory Access (Load/Store)
         MemSel_E        : in std_logic := '0';     -- Memory Selector
         RegWriteEn_E    : in std_logic := '0';
-        WbSel_E         : in std_logic_vector(1 downto 0) := "00";     -- Write-Back Selector
+        WbSel_E         : in std_logic := '0';     -- Write-Back Selector
         MemWrite_E      : in std_logic := '0';     -- Memory Write Enable (Store)
         OutEn_E         : in std_logic := '0';     -- Output Enable (IO)
         PUSH_E          : in std_logic := '0';     -- Stack Push Enable (NEW)
@@ -34,7 +33,6 @@ entity EX_MEM_Register is
         RD2_M           : out std_logic_vector(31 downto 0) := x"0000_0000";
         PC1_M           : out std_logic_vector(31 downto 0) := x"0000_0000";
         PSP_M           : out std_logic_vector(31 downto 0) := x"0000_0000";
-        Imm_M           : out std_logic_vector(31 downto 0) := x"0000_0000";
         
         Rdst_M          : out std_logic_vector(2 downto 0) := "000";
         
@@ -44,7 +42,7 @@ entity EX_MEM_Register is
         MEM_M           : out std_logic := '0';
         MemSel_M        : out std_logic := '0';
         RegWriteEn_M    : out std_logic := '0';
-        WbSel_M         : out std_logic_vector(1 downto 0) := "00";
+        WbSel_M         : out std_logic := '0';
         MemWrite_M      : out std_logic := '0';
         OutEn_M         : out std_logic := '0';
         PUSH_M          : out std_logic := '0';
@@ -68,7 +66,6 @@ begin
             PUSH_M <= '0'; POP_M <= '0'; INT1_M <= '0'; INT2_M <= '0';
             
             ExOutM <= NOP_DATA; RD2_M <= NOP_DATA; PC1_M <= NOP_DATA; PSP_M <= NOP_DATA;
-            Imm_M <= NOP_DATA;
             Rdst_M <= REG_ADDR_NOP;
 
         elsif falling_edge(clk) then
@@ -79,7 +76,6 @@ begin
                 PUSH_M <= '0'; POP_M <= '0'; INT1_M <= '0'; INT2_M <= '0';
                 
                 ExOutM <= NOP_DATA; RD2_M <= NOP_DATA; PC1_M <= NOP_DATA; PSP_M <= NOP_DATA;
-                Imm_M <= NOP_DATA;
                 Rdst_M <= REG_ADDR_NOP;
 
             elsif enable = '1' then
@@ -89,7 +85,6 @@ begin
                 PUSH_M <= PUSH_E; POP_M <= POP_E; INT1_M <= INT1_E; INT2_M <= INT2_E;
 
                 ExOutM <= ExOutE; RD2_M <= RD2_E; PC1_M <= PC1_E; PSP_M <= PSP_E;
-                Imm_M <= Imm_E;
                 Rdst_M <= Rdst_E;
             -- else (enable = '0'): Hold current values (Stall)
             end if;

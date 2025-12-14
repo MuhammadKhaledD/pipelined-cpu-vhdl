@@ -5,7 +5,7 @@ USE ieee.numeric_std.ALL;
 ENTITY Memory_Fetch_Stages IS
     PORT (
         clk : IN STD_LOGIC;
-	reset,interrupt : IN STD_LOGIC;
+	    reset,interrupt : IN STD_LOGIC;
 
         Branch  : IN STD_LOGIC;
         SwapCtrl : IN STD_LOGIC;
@@ -31,12 +31,12 @@ ENTITY Memory_Fetch_Stages IS
         RdstM  : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
         PSPM   : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         SP     : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        MemDataM : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
 
         ImmE    : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
 
         RegWriteEnWM : OUT STD_LOGIC;
         EXOutWM      : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-        ImmWM        : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         RdstWM       : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
         outPort      : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
 
@@ -131,7 +131,6 @@ BEGIN
     -------------------------------------------------
     -- Forward to WriteBack
     -------------------------------------------------
-    ImmWM <= ImmM;
     RdstWM <= RdstM;
     RegWriteEnWM <= RegWriteENM;
     EXOutWM <= ExOutM;

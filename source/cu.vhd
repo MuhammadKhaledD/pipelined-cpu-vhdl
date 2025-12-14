@@ -21,7 +21,7 @@ entity cu is
       MemDLoadStore : out std_logic_vector(1-1 downto 0);
       MemSelD       : out std_logic_vector(1-1 downto 0);
       RegWriteEnD   : out std_logic_vector(1-1 downto 0);
-      WbSelD        : out std_logic_vector(2-1 downto 0);
+      WbSelD        : out std_logic_vector(1-1 downto 0);
       SwapD         : out std_logic_vector(2-1 downto 0);
       MemWriteD     : out std_logic_vector(1-1 downto 0);
       AluOpD        : out std_logic_vector(4-1 downto 0);
@@ -53,7 +53,7 @@ constant CALLD_WIDTH      : natural := 1;
 constant MEMDS_WIDTH      : natural := 1;
 constant MEMSELD_WIDTH    : natural := 1;
 constant REGWEN_WIDTH     : natural := 1;
-constant WBSELD_WIDTH     : natural := 2;
+constant WBSELD_WIDTH     : natural := 1;
 constant SWAPD_WIDTH      : natural := 2;
 constant MEMWRITED_WIDTH  : natural := 1;
 constant ALUOPD_WIDTH     : natural := 4;
@@ -142,7 +142,7 @@ constant OUTEN_WIDTH      : natural := 1;
    signal comb_MemDLoadStore: std_logic_vector(MEMDS_WIDTH-1 downto 0) := (others => '0');
    signal comb_MemSelD      : std_logic_vector(MEMSELD_WIDTH-1 downto 0) := (others => '1'); -- default not store
    signal comb_RegWriteEnD  : std_logic_vector(REGWEN_WIDTH-1 downto 0) := (others => '0');
-   signal comb_WbSelD       : std_logic_vector(WBSELD_WIDTH-1 downto 0) := (others => '0');
+   signal comb_WbSelD       : std_logic := '0';
    signal comb_MemWriteD    : std_logic_vector(MEMWRITED_WIDTH-1 downto 0) := (others => '0');
    signal comb_AluOpD       : std_logic_vector(ALUOPD_WIDTH-1 downto 0) := (others => '0');
    signal comb_JmpZD        : std_logic_vector(JMZ_WIDTH-1 downto 0) := (others => '0');
@@ -227,9 +227,7 @@ begin
             comb_MemDLoadStore <= (others => '1');
             comb_MemWriteD <= (others => '0');
             comb_RegWriteEnD <= (others => '1');
-            if WBSELD_WIDTH >= 2 then
-               comb_WbSelD <= std_logic_vector(to_unsigned(2, WBSELD_WIDTH));
-            end if;
+               comb_WbSelD <= 1;
             comb_LoadUseD <= (others => '1');
 
          when OPC_OUT =>
@@ -309,18 +307,14 @@ begin
          when OPC_LDM =>
             comb_IsImm <= (others => '1');
             comb_RegWriteEnD <= (others => '1');
-            if WBSELD_WIDTH >= 2 then
-               comb_WbSelD <= std_logic_vector(to_unsigned(1, WBSELD_WIDTH));
-            end if;
-
+            comb_WbSelD <= '0';
+            comb_AluOpD <= ALU_R2;
          when OPC_LDD =>
             comb_IsImm <= (others => '1');
             comb_MemDLoadStore <= (others => '1');
             comb_MemWriteD <= (others => '0');
             comb_RegWriteEnD <= (others => '1');
-            if WBSELD_WIDTH >= 2 then
-               comb_WbSelD <= std_logic_vector(to_unsigned(2, WBSELD_WIDTH));
-            end if;
+            comb_WbSelD <= '1';
             comb_LoadUseD <= (others => '1');
             comb_AluOpD <= ALU_ADD;
 

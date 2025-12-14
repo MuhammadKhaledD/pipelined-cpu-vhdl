@@ -37,7 +37,6 @@ ENTITY Excute_Stage  IS
         PSP           : out  std_logic_vector(31 downto 0);
         SP            : out std_logic_vector(31 downto 0);
         RdstE         : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
-        ImmE          : OUT std_logic_vector(31 downto 0);
         RD2E          : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         ExoutE        : OUT std_logic_vector(31 downto 0)
     );
@@ -243,7 +242,6 @@ begin
     ----------------------------------------------------------------
     -- Forward imm and rd2 to EX stage outputs (combinational forwarding)
     ----------------------------------------------------------------
-    ImmE  <= ImmD;
     RD2E  <= RD2;
 
     ----------------------------------------------------------------

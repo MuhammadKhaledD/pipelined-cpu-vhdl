@@ -19,7 +19,7 @@ entity ID_EX_Register is
         MEMD            : in std_logic := '0'; -- Generic Memory Access (Load/Store)
         MemSelD         : in std_logic := '0'; -- Memory Selector
         RegWriteEnD     : in std_logic := '0';
-        WbSelD          : in std_logic_vector(1 downto 0) := "00"; -- Write-Back Selector
+        WbSelD          : in std_logic := '0'; -- Write-Back Selector
         SwapD           : in std_logic_vector(1 downto 0) := "00";
         MemWriteD       : in std_logic := '0';
         AluOpD          : in std_logic_vector(3 downto 0) := "0000";
@@ -50,7 +50,7 @@ entity ID_EX_Register is
         MEM_E           : out std_logic := '0';
         MemSel_E        : out std_logic := '0';
         RegWriteEn_E    : out std_logic := '0';
-        WbSel_E         : out std_logic_vector(1 downto 0) := "00";
+        WbSel_E         : out std_logic := '0';
         Swap_E          : out std_logic_vector(1 downto 0) := "00";
         MemWrite_E      : out std_logic := '0';
         AluOp_E         : out std_logic_vector(3 downto 0) := "0000";
