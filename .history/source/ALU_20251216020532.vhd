@@ -45,83 +45,79 @@ begin
     B <= signed(SrcB);
 
     process(A, B, ALU_OPctrl)
-    variable tmp        : signed(32 downto 0);
-    variable res_v      : signed(31 downto 0);
-    variable carry_v    : std_logic;
-begin
-    -- defaults
-    res_v   := (others => '0');
-    carry_v := '0';
-    flagsen <= '0';
+        variable tmp : signed(32 downto 0);
+    begin
+        -- defaults
+        result     <= (others => '0');
+        carry_flag <= '0';
+        flagsen    <= '0';
 
-    case ALU_OPctrl is
+        case ALU_OPctrl is
 
-        when ALU_NOP =>
+            when ALU_NOP =>
                 null;
-        when ALU_ADD =>
-            tmp := resize(A, 33) + resize(B, 33);
-            res_v   := tmp(31 downto 0);
-            carry_v := tmp(32);
-            flagsen <= '1';
 
-        when ALU_SUB =>
-            tmp := resize(A, 33) - resize(B, 33);
-            res_v   := tmp(31 downto 0);
-            carry_v := not tmp(32);
-            flagsen <= '1';
+            when ALU_ADD =>
+                tmp := resize(A, 33) + resize(B, 33);
+                result <= tmp(31 downto 0);
+                carry_flag <= tmp(32);
+                flagsen <= '1';
 
-        when ALU_AND =>
-            res_v := A and B;
-            flagsen <= '1';
+            when ALU_SUB =>
+                tmp := resize(A, 33) - resize(B, 33);
+                result <= tmp(31 downto 0);
+                carry_flag <= not tmp(32);
+                flagsen <= '1';
 
-        when ALU_NOT =>
-            res_v := not A;
-            flagsen <= '1';
+            when ALU_AND =>
+                result <= A and B;
+                flagsen <= '1';
 
-        when ALU_INC =>
-            tmp := resize(A, 33) + 1;
-            res_v   := tmp(31 downto 0);
-            carry_v := tmp(32);
-            flagsen <= '1';
+            when ALU_NOT =>
+                result <= not A;
+                flagsen <= '1';
 
-        when ALU_R1 =>
-            res_v := A;
+            when ALU_INC =>
+                tmp := resize(A, 33) + 1;
+                result <= tmp(31 downto 0);
+                carry_flag <= tmp(32);
+                flagsen <= '1';
 
-        when ALU_R2 =>
-            res_v := B;
+            when ALU_R1 =>
+                result <= A;
 
-        when ALU_ADD_PLUS2 =>
-            tmp := resize(B, 33) + 2;
-            res_v   := tmp(31 downto 0);
-            carry_v := tmp(32);
+            when ALU_R2 =>
+                result <= B;
 
-        when ALU_SET_C =>
-            res_v   := (others => '0');
-            carry_v := '1';
-            flagsen <= '1';
-            flagsen <= '1';
+            when ALU_ADD_PLUS2 =>
+                tmp := resize(B, 33) + 2;
+                result <= tmp(31 downto 0);
+                carry_flag <= tmp(32);
 
-        when others =>
-            null;
-    end case;
+            when ALU_SET_C =>
+                result <= (others => '0');
+                carry_flag <= '1';
 
-    if(res_v = 0) then
-        zf_i <= '1';    
-    else
-        zf_i <= '0';
-    end if;
-    nf_i <= res_v(31);
-    cf_i <= carry_v;
+            when others =>
+                null;
+        end case;
 
-    result  <= res_v;
-    AluOut  <= std_logic_vector(res_v);
-    FEN     <= flagsen;
-end process;
+        -- flag generation
+        if result = 0 then 
+		zf_i <= '1'; 
+	else 
+		zf_i <= '0';
+	end if;
+        nf_i <= result(31);
+        cf_i <= carry_flag;
 
+        AluOut <= std_logic_vector(result);
+        FEN    <= flagsen;
+    end process;
 
+    -- flag reset logic
     ZF <= '0' when RSTZF = '1' else zf_i;
     CF <= '0' when RSTCF = '1' else cf_i;
     NF <= '0' when RSTNF = '1' else nf_i;
 
 end architecture;
-

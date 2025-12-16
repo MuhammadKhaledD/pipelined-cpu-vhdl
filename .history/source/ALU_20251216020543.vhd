@@ -56,8 +56,6 @@ begin
 
     case ALU_OPctrl is
 
-        when ALU_NOP =>
-                null;
         when ALU_ADD =>
             tmp := resize(A, 33) + resize(B, 33);
             res_v   := tmp(31 downto 0);
@@ -98,7 +96,6 @@ begin
         when ALU_SET_C =>
             res_v   := (others => '0');
             carry_v := '1';
-            flagsen <= '1';
             flagsen <= '1';
 
         when others =>

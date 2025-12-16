@@ -99,7 +99,6 @@ begin
             res_v   := (others => '0');
             carry_v := '1';
             flagsen <= '1';
-            flagsen <= '1';
 
         when others =>
             null;

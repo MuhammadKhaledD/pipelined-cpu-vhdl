@@ -273,7 +273,7 @@ begin
         port map (
             clk   => clk,
             Plus  => sp_plus_s,
-            Minus => sp_minus_s,
+            Minus => (sel_calle = '1') or (sel_pushe = '1') or (sel_int1e = '1'),
             PSP   => sp_PSP,
             SP    => sp_SP
         );

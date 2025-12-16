@@ -12,7 +12,7 @@ ENTITY Excute_Stage  IS
         RSrc1D  : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
         RSrc2D  : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
         Rdst    : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-        ImmD    : IN std_logic_vector(31 downto 0);
+                : IN std_logic_vector(31 downto 0);
         InputPort : IN std_logic_vector(31 downto 0);
         interrupt  : IN std_logic_vector(0 downto 0);
 

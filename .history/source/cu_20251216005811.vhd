@@ -21,7 +21,7 @@ entity cu is
       MemDLoadStore : out std_logic_vector(1-1 downto 0);
       MemSelD       : out std_logic_vector(1-1 downto 0);
       RegWriteEnD   : out std_logic_vector(1-1 downto 0);
-      WbSelD        : out std_logic;
+      WbSelD        : out std_logic_vector(1-1 downto 0);
       SwapD         : out std_logic_vector(2-1 downto 0);
       MemWriteD     : out std_logic_vector(1-1 downto 0);
       AluOpD        : out std_logic_vector(4-1 downto 0);
@@ -172,7 +172,7 @@ begin
       comb_MemDLoadStore <= (others => '0');
       comb_MemSelD       <= (others => '1'); -- not store by default
       comb_RegWriteEnD   <= (others => '0');
-      comb_WbSelD        <=  '0';
+      comb_WbSelD        <= (others => '0');
       comb_MemWriteD     <= (others => '0');
       comb_AluOpD        <= (others => '0');
       comb_JmpZD         <= (others => '0');
@@ -227,7 +227,7 @@ begin
             comb_MemDLoadStore <= (others => '1');
             comb_MemWriteD <= (others => '0');
             comb_RegWriteEnD <= (others => '1');
-               comb_WbSelD <= '1';
+               comb_WbSelD <= 1;
             comb_LoadUseD <= (others => '1');
 
          when OPC_OUT =>
@@ -236,7 +236,7 @@ begin
 
          when OPC_IN =>
             comb_RegWriteEnD <= (others => '1');
-            comb_WbSelD <= '0';
+            comb_WbSelD <= (others => '0');
             comb_ExOutSelD <= (others => '1');
 
          when OPC_CALL =>
@@ -248,34 +248,34 @@ begin
 
          when OPC_INC =>
             comb_RegWriteEnD <= (others => '1');
-            comb_WbSelD <= '0';
+            comb_WbSelD <= (others => '0');
             comb_NotIncSignal <= (others => '1');
             comb_AluOpD <= ALU_INC;
 
          when OPC_NOT =>
             comb_RegWriteEnD <= (others => '1');
-            comb_WbSelD <= '0';
+            comb_WbSelD <= (others => '0');
             comb_NotIncSignal <= (others => '1');
             comb_AluOpD <= ALU_NOT;
 
          when OPC_MOV =>
             comb_RegWriteEnD <= (others => '1');
-            comb_WbSelD <= '0';
+            comb_WbSelD <= (others => '0');
             comb_AluOpD <= ALU_R1;
 
          when OPC_ADD =>
             comb_RegWriteEnD <= (others => '1');
-            comb_WbSelD <= '0';
+            comb_WbSelD <= (others => '0');
             comb_AluOpD <= ALU_ADD;
 
          when OPC_SUB =>
             comb_RegWriteEnD <= (others => '1');
-            comb_WbSelD <= '0';
+            comb_WbSelD <= (others => '0');
             comb_AluOpD <= ALU_SUB;
 
          when OPC_AND =>
             comb_RegWriteEnD <= (others => '1');
-            comb_WbSelD <= '0';
+            comb_WbSelD <= (others => '0');
             comb_AluOpD <= ALU_AND;
 
          when OPC_JZ =>
@@ -301,7 +301,7 @@ begin
          when OPC_IADD =>
             comb_IsImm <= (others => '1');
             comb_RegWriteEnD <= (others => '1');
-            comb_WbSelD <= '0';
+            comb_WbSelD <= (others => '0');
             comb_AluOpD <= ALU_ADD;
 
          when OPC_LDM =>
@@ -428,7 +428,7 @@ begin
    MemWriteD <= std_logic_vector( (unsigned(comb_MemWriteD) or unsigned(MemWrite_override)) );
 
    -- For AluOp: override if non-zero, else combinational
-   AluOpD <= AluOp_override when AluOp_override /= "0000" else comb_AluOpD;
+   AluOpD <= AluOp_override when AluOp_override /= (others => '0') else comb_AluOpD;
 
    -- Remaining outputs come straight from combinational decode (these are unaffected by FSM, except where we used overrides above)
    IsImm       <= comb_IsImm;
@@ -450,4 +450,3 @@ begin
    OutEnD      <= comb_OutEnD;
 
 end control_unit;
-

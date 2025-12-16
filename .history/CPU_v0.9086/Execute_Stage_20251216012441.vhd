@@ -272,8 +272,8 @@ begin
     SP_inst : entity work.SP_Register
         port map (
             clk   => clk,
-            Plus  => sp_plus_s,
-            Minus => sp_minus_s,
+            Plus  => (sel_pope = '1') or (sel_rete = '1') or (sel_rtie = '1'),
+            Minus => (sel_calle = '1') or (sel_pushe = '1') or (sel_int1e = '1'),
             PSP   => sp_PSP,
             SP    => sp_SP
         );

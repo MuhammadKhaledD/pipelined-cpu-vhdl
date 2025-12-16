@@ -99,7 +99,7 @@ ARCHITECTURE struct OF Excute_Stage IS
     signal s_Rdst    : std_logic_vector(2 downto 0);
     signal preserve_s : std_logic;
     signal sp_plus_s  : std_logic;
-    signal sp_minus_s : std_logic;
+signal sp_minus_s : std_logic;
 
 
     -- ALU wires
@@ -184,12 +184,6 @@ begin
     cf_and_jc <= ccr_C and sel_jmpc;
     nf_and_jn <= ccr_N and sel_jmpn;
 
-    preserve_s <= '1' when (sel_int1e = '1') or (interrupt(0) = '1') else '0';
-
-    sp_plus_s  <= '1' when (sel_pope = '1') or (sel_rete = '1') or (sel_rtie = '1') else '0';
-
-    sp_minus_s <= '1' when (sel_calle = '1') or (sel_pushe = '1') or (sel_int1e = '1') else '0';
-
     ----------------------------------------------------------------
     -- Instantiate ALU (direct entity instantiation)
     -- RSTZF/RSTCF/RSTNF are driven by the corresponding "consume" signals:
@@ -222,7 +216,7 @@ begin
             Z_in     => alu_ZF,
             N_in     => alu_NF,
             C_in     => alu_CF,
-            preserve => preserve_s,
+            preserve => (sel_int1e = '1') or (interrupt(0) = '1'),
             restore  => sel_rtie,
             Z_out    => ccr_Z,
             N_out    => ccr_N,
@@ -272,8 +266,8 @@ begin
     SP_inst : entity work.SP_Register
         port map (
             clk   => clk,
-            Plus  => sp_plus_s,
-            Minus => sp_minus_s,
+            Plus  => (sel_pope = '1') or (sel_rete = '1') or (sel_rtie = '1'),
+            Minus => (sel_calle = '1') or (sel_pushe = '1') or (sel_int1e = '1'),
             PSP   => sp_PSP,
             SP    => sp_SP
         );
