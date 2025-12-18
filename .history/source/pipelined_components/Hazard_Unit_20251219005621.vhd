@@ -30,11 +30,10 @@ entity Hazard_Unit is
 end Hazard_Unit;
 
 architecture Behavioral of Hazard_Unit is
+    signal MEM_operation : std_logic := '0';
 begin
 
-
     process(POPM, PUSM, Mem, CU_IsIMM, RTIM, Branch, RETM, CALLM, INT1D, INT1M, INT2M, ID_EX_LoadUse, IF_ID_Rs1, IF_ID_Rs2, ID_EX_Rd)
-        variable MEM_operation : std_logic;
     begin
         -- Default outputs
         PC_enable <= '1';
@@ -46,7 +45,7 @@ begin
         MEM_WB_flush <= '0';
         NOP_ctrl <= '0';
 
-       MEM_operation := POPM or PUSM or RTIM or RETM or CALLM or Mem or INT1M or INT2M;
+       MEM_operation <= POPM or PUSM or RTIM or RETM or CALLM or Mem or INT1M or INT2M;
 
         -- Load-Use Hazard Detection
         if ID_EX_LoadUse = '1' and ID_EX_Rd /= "000" then

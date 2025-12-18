@@ -31,16 +31,16 @@ begin
         else
         -- Check for forwarding to operand A
             if (regWrite_MEM = '1') and (rd_MEM /= "000") and (rd_MEM = rs1) then
-                forwardA <= "10";  -- Forward from EX/MEM buffer
+                forwardA <= "10";  -- Forward from EX/MEM reg stage
             elsif (regWrite_WB = '1') and (rd_WB /= "000") and (rd_WB = rs1) then
-                forwardA <= "01";  -- Forward from MEM/WB buffer
+                forwardA <= "01";  -- Forward from WB stage
             end if;
 
         -- Check for forwarding to operand B
             if (regWrite_MEM = '1') and (rd_MEM /= "000") and (rd_MEM = rs2) then
-                forwardB <= "10";  -- Forward from EX/MEM buffer
+                forwardB <= "10";  -- Forward from MEM stage
             elsif (regWrite_WB = '1') and (rd_WB /= "000") and (rd_WB = rs2) then
-                forwardB <= "01";  -- Forward from  MEM/WB buffer
+                forwardB <= "01";  -- Forward from WB stage
             end if;
         end if;
     end process;
