@@ -62,7 +62,7 @@ begin
         if rst = '1' then
             -- Reset: Clear all control signals and data paths to push a NOP
             RET_M <= '0'; RTI_M <= '0'; CALL_M <= '0'; MEM_M <= '0'; MemSel_M <= '0';
-            RegWriteEn_M <= '0'; WbSel_M <= "00"; MemWrite_M <= '0'; OutEn_M <= '0';
+            RegWriteEn_M <= '0'; WbSel_M <= '0'; MemWrite_M <= '0'; OutEn_M <= '0';
             PUSH_M <= '0'; POP_M <= '0'; INT1_M <= '0'; INT2_M <= '0';
             
             ExOutM <= NOP_DATA; RD2_M <= NOP_DATA; PC1_M <= NOP_DATA; PSP_M <= NOP_DATA;
@@ -72,7 +72,7 @@ begin
             if flush = '1' then
                 -- Flush: Clear all control signals to insert a NOP bubble
                 RET_M <= '0'; RTI_M <= '0'; CALL_M <= '0'; MEM_M <= '0'; MemSel_M <= '0';
-                RegWriteEn_M <= '0'; WbSel_M <= "00"; MemWrite_M <= '0'; OutEn_M <= '0';
+                RegWriteEn_M <= '0'; WbSel_M <= '0'; MemWrite_M <= '0'; OutEn_M <= '0';
                 PUSH_M <= '0'; POP_M <= '0'; INT1_M <= '0'; INT2_M <= '0';
                 
                 ExOutM <= NOP_DATA; RD2_M <= NOP_DATA; PC1_M <= NOP_DATA; PSP_M <= NOP_DATA;

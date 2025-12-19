@@ -53,6 +53,7 @@ constant CALLD_WIDTH      : natural := 1;
 constant MEMDS_WIDTH      : natural := 1;
 constant MEMSELD_WIDTH    : natural := 1;
 constant REGWEN_WIDTH     : natural := 1;
+constant WBSELD_WIDTH     : natural := 1;
 constant SWAPD_WIDTH      : natural := 2;
 constant MEMWRITED_WIDTH  : natural := 1;
 constant ALUOPD_WIDTH     : natural := 4;
@@ -201,6 +202,7 @@ begin
 
          when OPC_POP =>
             comb_PopD <= (others => '1');
+            comb_MemDLoadStore <= (others => '1');
             comb_MemWriteD <= (others => '0');
             comb_RegWriteEnD <= (others => '1');
                comb_WbSelD <= '1';

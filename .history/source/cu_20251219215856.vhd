@@ -53,6 +53,7 @@ constant CALLD_WIDTH      : natural := 1;
 constant MEMDS_WIDTH      : natural := 1;
 constant MEMSELD_WIDTH    : natural := 1;
 constant REGWEN_WIDTH     : natural := 1;
+constant WBSELD_WIDTH     : natural := 1;
 constant SWAPD_WIDTH      : natural := 2;
 constant MEMWRITED_WIDTH  : natural := 1;
 constant ALUOPD_WIDTH     : natural := 4;

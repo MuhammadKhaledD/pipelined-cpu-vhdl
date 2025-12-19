@@ -12,14 +12,10 @@ ENTITY Excute_Stage  IS
         RSrc1D  : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
         RSrc2D  : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
         Rdst    : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-        ImmE    : IN std_logic_vector(31 downto 0);
+        ImmD    : IN std_logic_vector(31 downto 0);
         InputPort : IN std_logic_vector(31 downto 0);
         interrupt  : IN std_logic_vector(0 downto 0);
-  -- forward unit controls
-        ExoutM  : IN std_logic_vector(31 downto 0);
-        RegDataWB : IN std_logic_vector(31 downto 0);
-        ForwardA : IN std_logic_vector(1 downto 0);
-        ForwardB : IN std_logic_vector(1 downto 0);
+  -- forward unit 
         SwapE         : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
         AluOpE        : IN std_logic_vector(3 downto 0);
         JmpZDE        : IN std_logic_vector(0 downto 0);
@@ -175,19 +171,11 @@ begin
     s_Rsrc2 <= RSrc2D;
 
     ----------------------------------------------------------------
-    -- ALU source selection: SrcA = RD1, SrcB = (IsImm ? ImmD : RD2) , with forwarding
+    -- ALU source selection: SrcA = RD1, SrcB = (IsImm ? ImmD : RD2)
     ----------------------------------------------------------------
-    alu_SrcA <= RD1 when ForwardA = "00" else
-                ExoutM when ForwardA = "10" else
-                RegDataWB when ForwardA = "01" else
-                RD1;  -- default fallback
-    --alu_SrcB <= ImmE when sel_srcb_imm = '1' else RD2;
+    alu_SrcA <= RD1;
+    alu_SrcB <= ImmD when sel_srcb_imm = '1' else RD2;
 
-    alu_SrcB <= RD2 when ForwardB = "00" and sel_srcb_imm = '0' else
-                ImmE when ForwardB = "00" and sel_srcb_imm = '1' else
-                ExoutM when ForwardB = "10" and sel_srcb_imm = '0' else
-                RegDataWB when ForwardB = "01" and  sel_srcb_imm = '0' else
-                RD2;  -- default fallback
     ----------------------------------------------------------------
     -- CCR: compute ANDs from registered flags + jump enables.
     -- These ANDs are used both for branch decision and to reset (consume) flags.

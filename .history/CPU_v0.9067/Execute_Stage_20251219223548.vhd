@@ -181,13 +181,12 @@ begin
                 ExoutM when ForwardA = "10" else
                 RegDataWB when ForwardA = "01" else
                 RD1;  -- default fallback
-    --alu_SrcB <= ImmE when sel_srcb_imm = '1' else RD2;
+    alu_SrcB <= ImmD when sel_srcb_imm = '1' else RD2;
 
-    alu_SrcB <= RD2 when ForwardB = "00" and sel_srcb_imm = '0' else
-                ImmE when ForwardB = "00" and sel_srcb_imm = '1' else
-                ExoutM when ForwardB = "10" and sel_srcb_imm = '0' else
-                RegDataWB when ForwardB = "01" and  sel_srcb_imm = '0' else
-                RD2;  -- default fallback
+    alu_SrcB <= alu_SrcB when ForwardB = "00" else
+                ExoutM when ForwardB = "10" else
+                RegDataWB when ForwardB = "01" else
+                alu_SrcB;  -- default fallback
     ----------------------------------------------------------------
     -- CCR: compute ANDs from registered flags + jump enables.
     -- These ANDs are used both for branch decision and to reset (consume) flags.

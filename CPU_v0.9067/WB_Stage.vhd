@@ -4,12 +4,12 @@ USE ieee.numeric_std.ALL;
 
 ENTITY WB_Stage IS
     PORT (
-        WBSelWB      : IN STD_LOGIC;
+        WBSelWB      : IN STD_LOGIC  := '0';
         
-        MemOutWB     : IN STD_LOGIC_VECTOR(31 DOWNTO 0); 
-        EXOutWB      : IN STD_LOGIC_VECTOR(31 DOWNTO 0); 
+        MemOutWB     : IN STD_LOGIC_VECTOR(31 DOWNTO 0):= x"0000_0000"; 
+        EXOutWB      : IN STD_LOGIC_VECTOR(31 DOWNTO 0):= x"0000_0000"; 
 
-        RegDataWB    : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
+        RegDataWB    : OUT STD_LOGIC_VECTOR(31 DOWNTO 0):= x"0000_0000"
 );
 END ENTITY;
 

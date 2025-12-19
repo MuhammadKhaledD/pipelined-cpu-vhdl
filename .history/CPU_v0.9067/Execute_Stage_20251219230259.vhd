@@ -184,7 +184,7 @@ begin
     --alu_SrcB <= ImmE when sel_srcb_imm = '1' else RD2;
 
     alu_SrcB <= RD2 when ForwardB = "00" and sel_srcb_imm = '0' else
-                ImmE when ForwardB = "00" and sel_srcb_imm = '1' else
+                ImmE when sel_srcb_imm = '1' and ForwardB = "00" else
                 ExoutM when ForwardB = "10" and sel_srcb_imm = '0' else
                 RegDataWB when ForwardB = "01" and  sel_srcb_imm = '0' else
                 RD2;  -- default fallback
