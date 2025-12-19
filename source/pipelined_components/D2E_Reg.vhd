@@ -85,7 +85,7 @@ begin
             -- Reset: Clear all control signals and data paths
             IsIMM_E <= '0'; RET_E <= '0'; POP_E <= '0'; RTI_E <= '0'; PUSH_E <= '0';
             INT1_E <= '0'; INT2_E <= '0'; CALL_E <= '0'; MEM_E <= '0'; MemSel_E <= '0';
-            RegWriteEn_E <= '0'; WbSel_E <= SWAP_NOP; Swap_E <= SWAP_NOP; MemWrite_E <= '0';
+            RegWriteEn_E <= '0'; WbSel_E <= '0'; Swap_E <= SWAP_NOP; MemWrite_E <= '0';
             AluOp_E <= ALU_NOP; JmpZ_E <= '0'; JmpC_E <= '0'; JmpN_E <= '0'; Jmp_E <= '0';
             ExOutSel_E <= '0'; LoadUse_E <= '0'; OutEn_E <= '0';
 
@@ -99,7 +99,7 @@ begin
                 -- control signals that would perform an action in later stages.
                 IsIMM_E <= '0'; RET_E <= '0'; POP_E <= '0'; RTI_E <= '0'; PUSH_E <= '0';
                 INT1_E <= '0'; INT2_E <= '0'; CALL_E <= '0'; MEM_E <= '0'; MemSel_E <= '0';
-                RegWriteEn_E <= '0'; WbSel_E <= SWAP_NOP; Swap_E <= SWAP_NOP; MemWrite_E <= '0';
+                RegWriteEn_E <= '0'; WbSel_E <= '0'; Swap_E <= SWAP_NOP; MemWrite_E <= '0';
                 AluOp_E <= ALU_NOP; JmpZ_E <= '0'; JmpC_E <= '0'; JmpN_E <= '0'; Jmp_E <= '0';
                 ExOutSel_E <= '0'; LoadUse_E <= '0'; OutEn_E <= '0';
                 
