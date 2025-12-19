@@ -196,12 +196,14 @@ begin
 
          when OPC_PUSH =>
             comb_PushD <= (others => '1');
+            comb_MemDLoadStore <= (others => '1');
             comb_MemWriteD <= (others => '1');
             comb_MemSelD <= (others => '0'); -- store
             comb_AluOpD <= ALU_R2;
 
          when OPC_POP =>
             comb_PopD <= (others => '1');
+            comb_MemDLoadStore <= (others => '1');
             comb_MemWriteD <= (others => '0');
             comb_RegWriteEnD <= (others => '1');
                comb_WbSelD <= '1';
