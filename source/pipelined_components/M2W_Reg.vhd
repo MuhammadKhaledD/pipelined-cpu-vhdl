@@ -9,7 +9,7 @@ entity MEM_WB_Register is
         
         ExOutM          : in std_logic_vector(31 downto 0) := x"0000_0000"; -- ALU Result (for R-type/Immediate)
         MemOutM    : in std_logic_vector(31 downto 0) := x"0000_0000"; -- Data Read from Data Memory (for Load)
-        ImmE            : in std_logic_vector(31 downto 0) := x"0000_0000"; -- Immediate Value (for LDI)
+        ImmM            : in std_logic_vector(31 downto 0) := x"0000_0000"; -- Immediate Value (for LDI)
         RdstM           : in std_logic_vector(2 downto 0) := "000"; -- Destination Register Address
         RegWriteEnM     : in std_logic := '0'; -- Register Write Enable
         WbSelM          : in std_logic := '0'; -- Write-Back Selector
