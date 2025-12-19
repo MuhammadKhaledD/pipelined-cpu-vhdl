@@ -112,14 +112,6 @@ constant OUTEN_WIDTH      : natural := 1;
    constant ALU_ADD_PLUS2 : std_logic_vector(3 downto 0) := "1110";
    constant ALU_SET_C     : std_logic_vector(3 downto 0) := "1101";
 
-   -- internal signals
-   signal swap_req : std_logic := '0';
-   signal int_req  : std_logic := '0';
-
-   -- FSM state and registers
-   signal swap_state : integer range 0 to 2 := 0;
-   signal int_state  : integer range 0 to 2 := 0;
-
    -- FSM-registered override outputs
    signal SwapCtrl_reg        : std_logic_vector(SWAP_WIDTH-1 downto 0) := (others => '0');
    signal SwapD_reg           : std_logic_vector(SWAPD_WIDTH-1 downto 0) := (others => '0');
@@ -184,19 +176,6 @@ begin
       comb_LoadUseD      <= (others => '0');
       comb_OutEnD        <= (others => '0');
       AluOp_override     <= (others => '0');
-
-      -- FSM detection flags (combinational)
-      if opcode = OPC_SWAP then
-         swap_req <= '1';
-      else
-         swap_req <= '0';
-      end if;
-
-      if opcode = OPC_INT then
-         int_req <= '1';
-      else
-         int_req <= '0';
-      end if;
 
       -- Mapping
       case opcode is
@@ -340,32 +319,36 @@ begin
    -- Detection: swap_req/int_req reflect opcode at the clock edge.
    ----------------------------------------------------------------
    fsm_proc: process(clk)
+
+   variable swap_state : integer range 0 to 2 := 0;
+   variable int_state  : integer range 0 to 2 := 0;
+
    begin
       if rising_edge(clk) then
          -- SWAP FSM
          if swap_state = 0 then
-            if swap_req = '1' then
-               swap_state <= 1;
+            if opcode = OPC_SWAP then
+               swap_state := 1;
             else
-               swap_state <= 0;
+               swap_state := 0;
             end if;
          elsif swap_state = 1 then
-            swap_state <= 2;
+            swap_state := 2;
          else -- swap_state = 2
-            swap_state <= 0;
+            swap_state := 0;
          end if;
 
          -- INT FSM
          if int_state = 0 then
-            if int_req = '1' then
-               int_state <= 1;
+            if opcode = OPC_INT then
+               int_state := 1;
             else
-               int_state <= 0;
+               int_state := 0;
             end if;
          elsif int_state = 1 then
-            int_state <= 2;
+            int_state := 2;
          else -- int_state = 2
-            int_state <= 0;
+            int_state := 0;
          end if;
 
          -- SWAP overrides (phase1: "01", phase2: "10")
