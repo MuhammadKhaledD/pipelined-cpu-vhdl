@@ -140,33 +140,65 @@ def get_immediate(m, ops_str):
     raise ValueError(f"{m} has no immediate")
 
 def assemble_file(src, dst):
-    words = []
+    memory = {}  # address -> 32-bit word
+    current_address = 0
+    
     with open(src, 'r') as f:
         for i, line in enumerate(f, start=1):
+            original_line = line
             line = RE_COMMENT.sub("", line).strip()
             if not line:
                 continue
+            
             parts = line.split(None, 1)
             mnemonic = parts[0]
             ops_str = parts[1] if len(parts) > 1 else ""
 
+            # Handle .ORG directive
+            if mnemonic == ".ORG":
+                if not ops_str:
+                    raise ValueError(f"{src}:{i}: .ORG requires an address")
+                try:
+                    current_address = parse_int(ops_str)
+                except Exception as e:
+                    raise ValueError(f"{src}:{i}: .ORG invalid address: {e}")
+                continue
+            
+            # Handle immediate values (raw hex values in memory)
+            if not mnemonic.upper() in OPCODES:
+                try:
+                    # Treat as immediate value
+                    value = parse_int(mnemonic)
+                    memory[current_address] = value & 0xFFFFFFFF
+                    current_address += 1
+                except Exception as e:
+                    raise ValueError(f"{src}:{i}: Invalid instruction or immediate: {e}")
+                continue
+
             try:
                 instr = encode_instruction(mnemonic, ops_str)
-                words.append(instr)                  # 1st 32-bit word: opcode+fields (IMM bits unused)
+                memory[current_address] = instr
+                current_address += 1
+                
                 if mnemonic.upper() in IMM_FOLLOWS:
                     imm = get_immediate(mnemonic, ops_str)
                     # Represent immediate as a 32-bit two's-complement value
                     imm32 = imm & 0xFFFFFFFF
-                    words.append(imm32)             # 2nd 32-bit word: immediate (full 32-bit two's complement)
+                    memory[current_address] = imm32
+                    current_address += 1
             except Exception as e:
                 raise ValueError(f"{src}:{i}: {e}")
 
-    # write output as 32-bit binary strings, one per line
+    # write output as memory format with addresses
     with open(dst, "w") as out:
-        for w in words:
-            out.write(f"{w:032b}\n")
+        out.write(r'''// memory data file (do not edit the following line - required for mem load use)
+// instance=/ram/ram
+// format=mti addressradix=d dataradix=b version=1.0 wordsperline=1
+''')
+        for addr in sorted(memory.keys()):
+            out.write(f'{addr}: {memory[addr]:032b}\n')
 
-    print(f"Wrote {len(words)} words to {dst}")
+    print(f"Wrote {len(memory)} words to {dst}")
 
 def main():
 
