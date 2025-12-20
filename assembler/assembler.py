@@ -37,11 +37,12 @@ def parse_int(t):
         v = int(t, 16)
     elif t.startswith(("0b", "0B")):
         v = int(t, 2)
-    elif t.isdigit():
-        # Treat bare numbers as hexadecimal by default
-        v = int(t, 16)
     else:
-        raise ValueError(f"Invalid number '{t}'")
+        # Try to parse as hex (handles both 0-9 and A-F without 0x prefix)
+        try:
+            v = int(t, 16)
+        except ValueError:
+            raise ValueError(f"Invalid number '{t}'")
     return -v if neg else v
 
 def encode_instruction(m, ops_str):
