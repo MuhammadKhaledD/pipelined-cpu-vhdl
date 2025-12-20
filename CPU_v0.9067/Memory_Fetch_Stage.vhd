@@ -23,16 +23,17 @@ ENTITY Memory_Fetch_Stages IS
         MemSelM     : IN STD_LOGIC;
         RegWriteENM : IN STD_LOGIC;
 
-        PC1M  : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        OutEnM : IN STD_LOGIC;
-        ExOutM : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        RD2M   : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        RdstM  : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-        PSPM   : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        SP     : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        MemDataM : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        ResetData : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        ImmE    : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        PC1M        : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        OutEnM      : IN STD_LOGIC;
+        ExOutM      : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        RD2M        : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        RdstM       : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+        PSPM        : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        SP          : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        MemDataM    : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        ResetData   : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        ImmE        : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        PCenH       : IN STD_LOGIC;
 
         RegWriteEnWM : OUT STD_LOGIC;
         EXOutWM      : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -84,7 +85,7 @@ BEGIN
     ------------------------------
     S0F <= Branch OR reset or interrupt;
     S1F <= INT2M OR reset OR interrupt or RTIM OR RETM;
-    PCen <= not (SwapCtrl OR HLT);
+    PCen <= not (SwapCtrl OR HLT OR PCenH);
 
 
     PC_src_s <= PC_addr when (S1F='0' and S0F='0') else
