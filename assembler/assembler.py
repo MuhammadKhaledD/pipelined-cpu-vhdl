@@ -38,7 +38,8 @@ def parse_int(t):
     elif t.startswith(("0b", "0B")):
         v = int(t, 2)
     elif t.isdigit():
-        v = int(t, 10)
+        # Treat bare numbers as hexadecimal by default
+        v = int(t, 16)
     else:
         raise ValueError(f"Invalid number '{t}'")
     return -v if neg else v
