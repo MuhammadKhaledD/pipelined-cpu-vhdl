@@ -384,7 +384,7 @@ ARCHITECTURE struct OF CPU IS
     signal sig_ID_MemAccess : std_logic;
     signal sig_ID_MemSelD  : std_logic;
     signal sig_ID_RegWrite : std_logic;
-    signal sig_ID_WbSel    : std_logic_vector(1 downto 0);
+    signal sig_ID_WbSel    : std_logic;
     signal sig_ID_SwapD    : std_logic_vector(1 downto 0);
     signal sig_ID_MemWrite : std_logic;
     signal sig_ID_AluOp    : std_logic_vector(3 downto 0);
@@ -499,6 +499,7 @@ ARCHITECTURE struct OF CPU IS
     signal sig_NOP_ctrl       : std_logic;
     -- helper signals
     signal sig_insFetch      : std_logic_vector(31 downto 0);
+    signal sig_en_fd         : std_logic;
 
 BEGIN
 
@@ -558,11 +559,12 @@ BEGIN
     -- ================================================================
     -- -- FETCH/DECODE PIPELINE REGISTER (IF/ID)
     -- ================================================================
+    sig_en_fd <= sig_IF_ID_enable and not sig_ID_SwapCtrl and not sig_ID_HLT;
     IF_ID_REG : entity work.IF_ID_Register
         port map (
             clk           => clk,
             rst           => rst,
-            enable        => sig_IF_ID_enable and not sig_ID_SwapCtrl(0) and not sig_ID_HLT,  -- Disable IF/ID update on a swap to insert NOP
+            enable        => sig_en_fd,  -- Disable IF/ID update on a swap to insert NOP
             flush         => sig_IF_ID_flush,
             instruction_F => sig_insFetch,  -- From Fetch (PC+1 repurposed as instr in this design)
             pc1_F         => sig_MEM_PC1f,
@@ -594,7 +596,7 @@ BEGIN
             MemDLoadStore => sig_ID_MemAccess,
             MemSelD       => sig_ID_MemSelD,
             RegWriteEnD   => sig_ID_RegWrite,
-            WbSelD        => sig_ID_WbSel,
+            WbSelD      => sig_ID_WbSel,
             SwapD         => sig_ID_SwapD,
             MemWriteD     => sig_ID_MemWrite,
             AluOpD        => sig_ID_AluOp,
@@ -644,7 +646,7 @@ BEGIN
             MEMD        => sig_ID_MemAccess,
             MemSelD     => sig_ID_MemSelD,
             RegWriteEnD => sig_ID_RegWrite,
-            WbSelD      => sig_ID_WbSel(0),
+            WbSelD      => sig_ID_WbSel,
             SwapD       => sig_ID_SwapD,
             MemWriteD   => sig_ID_MemWrite,
             AluOpD      => sig_ID_AluOp,
@@ -815,7 +817,7 @@ BEGIN
             RegWriteEnM => sig_MEM_RegWriteEnWM,
             WbSelM      => sig_EX_MEM_WbSel,  -- Always select EXOut for now
 
-            ExOutW      => sig_MEM_WB_ExOut,
+            ExOutW      => sig_MEM_WB_ExOut,    
             MemOutW     => sig_MEM_WB_MemOut,
             ImmW        => open,
             RdstW       => sig_MEM_WB_Rdst,
