@@ -197,30 +197,30 @@ ARCHITECTURE struct OF CPU IS
             RSrc1D      : out std_logic_vector(2 downto 0);
             RSrc2D      : out std_logic_vector(2 downto 0);
             Rdst        : out std_logic_vector(2 downto 0);
-            SwapCtrl    : out std_logic_vector(0 downto 0);
-            IsImm       : out std_logic_vector(0 downto 0);
-            HLT         : out std_logic_vector(0 downto 0);
-            RetD        : out std_logic_vector(0 downto 0);
-            PopD        : out std_logic_vector(0 downto 0);
-            RtiD        : out std_logic_vector(0 downto 0);
-            PushD       : out std_logic_vector(0 downto 0);
-            Int1D       : out std_logic_vector(0 downto 0);
-            Int2D       : out std_logic_vector(0 downto 0);
-            CallD       : out std_logic_vector(0 downto 0);
-            MemDLoadStore : out std_logic_vector(0 downto 0);
-            MemSelD     : out std_logic_vector(0 downto 0);
-            RegWriteEnD : out std_logic_vector(0 downto 0);
+            SwapCtrl    : out std_logic;
+            IsImm       : out std_logic;
+            HLT         : out std_logic;
+            RetD        : out std_logic;
+            PopD        : out std_logic;
+            RtiD        : out std_logic;
+            PushD       : out std_logic;
+            Int1D       : out std_logic;
+            Int2D       : out std_logic;
+            CallD       : out std_logic;
+            MemDLoadStore : out std_logic;
+            MemSelD     : out std_logic;
+            RegWriteEnD : out std_logic;
             WbSelD      : out std_logic;
             SwapD       : out std_logic_vector(1 downto 0);
-            MemWriteD   : out std_logic_vector(0 downto 0);
+            MemWriteD   : out std_logic;
             AluOpD      : out std_logic_vector(3 downto 0);
-            JmpZD       : out std_logic_vector(0 downto 0);
-            JmpCD       : out std_logic_vector(0 downto 0);
-            JmpND       : out std_logic_vector(0 downto 0);
-            JmpD        : out std_logic_vector(0 downto 0);
-            ExOutSelD   : out std_logic_vector(0 downto 0);
-            LoadUseD    : out std_logic_vector(0 downto 0);
-            OutEnD      : out std_logic_vector(0 downto 0)
+            JmpZD       : out std_logic;
+            JmpCD       : out std_logic;
+            JmpND       : out std_logic;
+            JmpD        : out std_logic;
+            ExOutSelD   : out std_logic;
+            LoadUseD    : out std_logic;
+            OutEnD      : out std_logic
         );
     end component Decode_Stage;
 
@@ -235,27 +235,27 @@ ARCHITECTURE struct OF CPU IS
             Rdst       : in std_logic_vector(2 downto 0);
             ImmE       : in std_logic_vector(31 downto 0);
             InputPort  : in std_logic_vector(31 downto 0);
-            interrupt  : in std_logic_vector(0 downto 0);
+            interrupt  : in std_logic;
             ExoutM     : in std_logic_vector(31 downto 0);
             RegDataWB  : in std_logic_vector(31 downto 0);
             ForwardA   : in std_logic_vector(1 downto 0);
             ForwardB   : in std_logic_vector(1 downto 0);
             SwapE      : in std_logic_vector(1 downto 0);
             AluOpE     : in std_logic_vector(3 downto 0);
-            JmpZDE     : in std_logic_vector(0 downto 0);
-            JmpCE      : in std_logic_vector(0 downto 0);
-            JmpNE      : in std_logic_vector(0 downto 0);
-            JmpE       : in std_logic_vector(0 downto 0);
-            IsImmE     : in std_logic_vector(0 downto 0);
-            ExOutSelE  : in std_logic_vector(0 downto 0);
-            CallE      : in std_logic_vector(0 downto 0);
-            RtiE       : in std_logic_vector(0 downto 0);
-            RetE       : in std_logic_vector(0 downto 0);
-            Int1E      : in std_logic_vector(0 downto 0);
-            PopE       : in std_logic_vector(0 downto 0);
-            PushE      : in std_logic_vector(0 downto 0);
+            JmpZDE     : in std_logic;
+            JmpCE      : in std_logic;
+            JmpNE      : in std_logic;
+            JmpE       : in std_logic;
+            IsImmE     : in std_logic;
+            ExOutSelE  : in std_logic;
+            CallE      : in std_logic;
+            RtiE       : in std_logic;
+            RetE       : in std_logic;
+            Int1E      : in std_logic;
+            PopE       : in std_logic;
+            PushE      : in std_logic;
 
-            Branch     : out std_logic_vector(0 downto 0);
+            Branch     : out std_logic;
             PSP        : out std_logic_vector(31 downto 0);
             SP         : out std_logic_vector(31 downto 0);
             RdstE      : out std_logic_vector(2 downto 0);
@@ -474,7 +474,6 @@ ARCHITECTURE struct OF CPU IS
     -- MEM/WB Register outputs (Write-Back stage inputs)
     signal sig_MEM_WB_ExOut   : std_logic_vector(31 downto 0);
     signal sig_MEM_WB_MemOut  : std_logic_vector(31 downto 0);
-    signal sig_MEM_WB_Imm     : std_logic_vector(31 downto 0);
     signal sig_MEM_WB_Rdst    : std_logic_vector(2 downto 0);
     signal sig_MEM_WB_RegWrite : std_logic;
     signal sig_MEM_WB_WbSel   : std_logic;
@@ -483,7 +482,6 @@ ARCHITECTURE struct OF CPU IS
     signal sig_WB_RegDataWB   : std_logic_vector(31 downto 0);
 
     -- Control signal MUXes
-    signal sig_Imm_extracted  : std_logic_vector(31 downto 0);
     signal sig_Imm_immediate  : std_logic_vector(31 downto 0);
 
     -- Forwarding Unit outputs
@@ -564,7 +562,7 @@ BEGIN
         port map (
             clk           => clk,
             rst           => rst,
-            enable        => sig_IF_ID_enable,
+            enable        => sig_IF_ID_enable and not sig_ID_SwapCtrl(0) and not sig_ID_HLT,  -- Disable IF/ID update on a swap to insert NOP
             flush         => sig_IF_ID_flush,
             instruction_F => sig_insFetch,  -- From Fetch (PC+1 repurposed as instr in this design)
             pc1_F         => sig_MEM_PC1f,
@@ -726,26 +724,26 @@ BEGIN
             Rdst        => sig_ID_EX_Rdst,
             ImmE        => sig_ID_EX_Imm,
             InputPort   => inPort,
-            interrupt   => (0 => hwInt),
+            interrupt   => hwInt,
             ExoutM      => sig_EX_MEM_ExOut,
             RegDataWB   => sig_WB_RegDataWB,
             ForwardA    => sig_ForwardA,
             ForwardB    => sig_ForwardB,
             SwapE       => sig_ID_EX_SwapE,
             AluOpE      => sig_ID_EX_AluOp,
-            JmpZDE      => (0 => sig_ID_EX_JmpZ),
-            JmpCE       => (0 => sig_ID_EX_JmpC),
-            JmpNE       => (0 => sig_ID_EX_JmpN),
-            JmpE        => (0 => sig_ID_EX_JmpE),
-            IsImmE      => (0 => sig_ID_EX_IsImm),
-            ExOutSelE   => (0 => sig_ID_EX_ExOutSel),
-            CallE       => (0 => sig_ID_EX_CallE),
-            RtiE        => (0 => sig_ID_EX_RtiE),
+            JmpZDE      => sig_ID_EX_JmpZ,
+            JmpCE       => sig_ID_EX_JmpC,
+            JmpNE       => sig_ID_EX_JmpN,
+            JmpE        => sig_ID_EX_JmpE,
+            IsImmE      => sig_ID_EX_IsImm,
+            ExOutSelE   => sig_ID_EX_ExOutSel,
+            CallE       => sig_ID_EX_CallE,
+            RtiE        => sig_ID_EX_RtiE,
             RetE        => sig_ID_EX_RetE,
-            Int1E       => (0 => sig_ID_EX_Int1E),
-            PopE        => (0 => sig_ID_EX_PopE),
-            PushE       => (0 => sig_ID_EX_PushE),
-            Branch      => (0 => sig_EX_Branch),
+            Int1E       => sig_ID_EX_Int1E,
+            PopE        => sig_ID_EX_PopE,
+            PushE       => sig_ID_EX_PushE,
+            Branch      => sig_EX_Branch,
             PSP         => sig_EX_PSP,
             SP          => sig_EX_SP,
             RdstE       => sig_EX_RdstE,
@@ -819,7 +817,7 @@ BEGIN
 
             ExOutW      => sig_MEM_WB_ExOut,
             MemOutW     => sig_MEM_WB_MemOut,
-            ImmW        => sig_MEM_WB_Imm,
+            ImmW        => open,
             RdstW       => sig_MEM_WB_Rdst,
             RegWriteEnW => sig_MEM_WB_RegWrite,
             WbSelW      => sig_MEM_WB_WbSel

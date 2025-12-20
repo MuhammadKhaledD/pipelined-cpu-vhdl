@@ -14,7 +14,7 @@ ENTITY Excute_Stage  IS
         Rdst    : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
         ImmE    : IN std_logic_vector(31 downto 0);
         InputPort   : IN std_logic_vector(31 downto 0);
-        interrupt   : IN std_logic_vector(0 downto 0);
+        interrupt   : IN std_logic;
         -- forward unit controls
         ExoutM      : IN std_logic_vector(31 downto 0);
         RegDataWB   : IN std_logic_vector(31 downto 0);
@@ -22,21 +22,21 @@ ENTITY Excute_Stage  IS
         ForwardB    : IN std_logic_vector(1 downto 0);
         SwapE         : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
         AluOpE        : IN std_logic_vector(3 downto 0);
-        JmpZDE        : IN std_logic_vector(0 downto 0);
-        JmpCE         : IN std_logic_vector(0 downto 0);
-        JmpNE         : IN std_logic_vector(0 downto 0);
-        JmpE          : IN std_logic_vector(0 downto 0);
-        IsImmE        : IN std_logic_vector(0 downto 0);
-        ExOutSelE     : IN std_logic_vector(0 downto 0);
+        JmpZDE        : IN std_logic;
+        JmpCE         : IN std_logic;
+        JmpNE         : IN std_logic;
+        JmpE          : IN std_logic;
+        IsImmE        : IN std_logic;
+        ExOutSelE     : IN std_logic;
 
-        CallE         : IN std_logic_vector(0 downto 0);
-        RtiE          : IN std_logic_vector(0 downto 0);
-        RetE          : IN std_logic_vector(0 downto 0);
-        Int1E         : IN std_logic_vector(0 downto 0);
-        PopE          : IN std_logic_vector(0 downto 0);
-        PushE         : IN std_logic_vector(0 downto 0);
+        CallE         : IN std_logic;
+        RtiE          : IN std_logic;
+        RetE          : IN std_logic;
+        Int1E         : IN std_logic;
+        PopE          : IN std_logic;
+        PushE         : IN std_logic;
 
-        Branch        : OUT std_logic_vector(0 downto 0);
+        Branch        : OUT std_logic;
         PSP           : out  std_logic_vector(31 downto 0);
         SP            : out std_logic_vector(31 downto 0);
         RdstE         : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
@@ -152,20 +152,20 @@ begin
     ----------------------------------------------------------------
     -- Map input small vectors to scalar control bits for clarity
     ----------------------------------------------------------------
-    sel_srcb_imm <= IsImmE(0);
-    sel_exout_in <= ExOutSelE(0);
+    sel_srcb_imm <= IsImmE;
+    sel_exout_in <= ExOutSelE;
 
-    sel_jmpz <= JmpZDE(0);
-    sel_jmpc <= JmpCE(0);
-    sel_jmpn <= JmpNE(0);
-    sel_jmpe <= JmpE(0);
+    sel_jmpz <= JmpZDE;
+    sel_jmpc <= JmpCE;
+    sel_jmpn <= JmpNE;
+    sel_jmpe <= JmpE;
 
-    sel_calle <= CallE(0);
-    sel_rtie  <= RtiE(0);
-    sel_rete  <= RetE(0);
-    sel_int1e <= Int1E(0);
-    sel_pope <= PopE(0);
-    sel_pushe <= PushE(0);
+    sel_calle <= CallE;
+    sel_rtie  <= RtiE;
+    sel_rete  <= RetE;
+    sel_int1e <= Int1E;
+    sel_pope <= PopE;
+    sel_pushe <= PushE;
 
     ----------------------------------------------------------------
     -- Register selector fields (from inputs)
@@ -196,7 +196,7 @@ begin
     cf_and_jc <= ccr_C and sel_jmpc;
     nf_and_jn <= ccr_N and sel_jmpn;
 
-    preserve_s <= '1' when (sel_int1e = '1') or (interrupt(0) = '1') else '0';
+    preserve_s <= '1' when (sel_int1e = '1') or (interrupt = '1') else '0';
 
     sp_plus_s  <= '1' when (sel_pope = '1') or (sel_rete = '1') or (sel_rtie = '1') else '0';
 
@@ -253,7 +253,7 @@ begin
                         (nf_and_jn = '1')
                 else '0';
 
-    Branch(0) <= s_Branch;
+    Branch <= s_Branch;
 
     ----------------------------------------------------------------
     -- ExoutE selection: 0 => ALU out ; 1 => InputPort

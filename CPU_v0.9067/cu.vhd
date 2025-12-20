@@ -8,61 +8,40 @@ entity cu is
       clk    : in  std_logic;
       opcode : in  std_logic_vector(4 downto 0);
 
-      SwapCtrl      : out std_logic_vector(1-1 downto 0);
-      IsImm         : out std_logic_vector(1-1 downto 0);
-      HLT           : out std_logic_vector(1-1 downto 0);
-      RetD          : out std_logic_vector(1-1 downto 0);
-      PopD          : out std_logic_vector(1-1 downto 0);
-      RtiD          : out std_logic_vector(1-1 downto 0);
-      PushD         : out std_logic_vector(1-1 downto 0);
-      Int1D         : out std_logic_vector(1-1 downto 0);
-      Int2D         : out std_logic_vector(1-1 downto 0);
-      CallD         : out std_logic_vector(1-1 downto 0);
-      MemDLoadStore : out std_logic_vector(1-1 downto 0);
-      MemSelD       : out std_logic_vector(1-1 downto 0);
-      RegWriteEnD   : out std_logic_vector(1-1 downto 0);
+      SwapCtrl      : out std_logic;
+      IsImm         : out std_logic;
+      HLT           : out std_logic;
+      RetD          : out std_logic;
+      PopD          : out std_logic;
+      RtiD          : out std_logic;
+      PushD         : out std_logic;
+      Int1D         : out std_logic;
+      Int2D         : out std_logic;
+      CallD         : out std_logic;
+      MemDLoadStore : out std_logic;
+      MemSelD       : out std_logic;
+      RegWriteEnD   : out std_logic;
       WbSelD        : out std_logic;
-      SwapD         : out std_logic_vector(2-1 downto 0);
-      MemWriteD     : out std_logic_vector(1-1 downto 0);
-      AluOpD        : out std_logic_vector(4-1 downto 0);
-      JmpZD         : out std_logic_vector(1-1 downto 0);
-      JmpCD         : out std_logic_vector(1-1 downto 0);
-      JmpND         : out std_logic_vector(1-1 downto 0);
-      JmpD          : out std_logic_vector(1-1 downto 0);
-      ExOutSelD     : out std_logic_vector(1-1 downto 0);
+      SwapD         : out std_logic_vector(1 downto 0);
+      MemWriteD     : out std_logic;
+      AluOpD        : out std_logic_vector(3 downto 0);
+      JmpZD         : out std_logic;
+      JmpCD         : out std_logic;
+      JmpND         : out std_logic;
+      JmpD          : out std_logic;
+      ExOutSelD     : out std_logic;
       NotIncSignal  : out std_logic;
-      LoadUseD      : out std_logic_vector(1-1 downto 0);
-      OutEnD        : out std_logic_vector(1-1 downto 0)
+      LoadUseD      : out std_logic;
+      OutEnD        : out std_logic
    );
 end cu;
 
 architecture control_unit of cu is
 
 
-   -- Width constants was generic before we try jus no to break the code
-constant SWAP_WIDTH       : natural := 1;
-constant ISIMM_WIDTH      : natural := 1;
-constant HLT_WIDTH        : natural := 1;
-constant RETD_WIDTH       : natural := 1;
-constant POPD_WIDTH       : natural := 1;
-constant RTID_WIDTH       : natural := 1;
-constant PUSHD_WIDTH      : natural := 1;
-constant INT1D_WIDTH      : natural := 1;
-constant INT2D_WIDTH      : natural := 1;
-constant CALLD_WIDTH      : natural := 1;
-constant MEMDS_WIDTH      : natural := 1;
-constant MEMSELD_WIDTH    : natural := 1;
-constant REGWEN_WIDTH     : natural := 1;
+   -- Width constants
 constant SWAPD_WIDTH      : natural := 2;
-constant MEMWRITED_WIDTH  : natural := 1;
 constant ALUOPD_WIDTH     : natural := 4;
-constant JMZ_WIDTH        : natural := 1;
-constant JMC_WIDTH        : natural := 1;
-constant JMN_WIDTH        : natural := 1;
-constant JMPD_WIDTH       : natural := 1;
-constant EXOUT_WIDTH      : natural := 1;
-constant LOADUSE_WIDTH    : natural := 1;
-constant OUTEN_WIDTH      : natural := 1;
 
    -- Opcodes (5)
    constant OPC_SWAP : std_logic_vector(4 downto 0) := "10010"; -- 15
@@ -111,38 +90,38 @@ constant OUTEN_WIDTH      : natural := 1;
    constant ALU_SET_C     : std_logic_vector(3 downto 0) := "1101";
 
    -- FSM-registered override outputs
-   signal SwapCtrl_reg        : std_logic_vector(SWAP_WIDTH-1 downto 0) := (others => '0');
+   signal SwapCtrl_reg        : std_logic := '0';
    signal SwapD_reg           : std_logic_vector(SWAPD_WIDTH-1 downto 0) := (others => '0');
-   signal RegWrite_override   : std_logic_vector(REGWEN_WIDTH-1 downto 0) := (others => '0');
+   signal RegWrite_override   : std_logic := '0';
 
-   signal Int1_reg            : std_logic_vector(INT1D_WIDTH-1 downto 0) := (others => '0');
-   signal Int2_reg            : std_logic_vector(INT2D_WIDTH-1 downto 0) := (others => '0');
-   signal MemD_override       : std_logic_vector(MEMDS_WIDTH-1 downto 0) := (others => '0');
-   signal MemWrite_override   : std_logic_vector(MEMWRITED_WIDTH-1 downto 0) := (others => '0');
+   signal Int1_reg            : std_logic := '0';
+   signal Int2_reg            : std_logic := '0';
+   signal MemD_override       : std_logic := '0';
+   signal MemWrite_override   : std_logic := '0';
    signal AluOp_override      : std_logic_vector(ALUOPD_WIDTH-1 downto 0) := (others => '0');
 
    -- intermediate combinational outputs
-   signal comb_IsImm        : std_logic_vector(ISIMM_WIDTH-1 downto 0) := (others => '0');
-   signal comb_HLT          : std_logic_vector(HLT_WIDTH-1 downto 0) := (others => '0');
-   signal comb_RetD         : std_logic_vector(RETD_WIDTH-1 downto 0) := (others => '0');
-   signal comb_PopD         : std_logic_vector(POPD_WIDTH-1 downto 0) := (others => '0');
-   signal comb_RtiD         : std_logic_vector(RTID_WIDTH-1 downto 0) := (others => '0');
-   signal comb_PushD        : std_logic_vector(PUSHD_WIDTH-1 downto 0) := (others => '0');
-   signal comb_CallD        : std_logic_vector(CALLD_WIDTH-1 downto 0) := (others => '0');
-   signal comb_MemDLoadStore: std_logic_vector(MEMDS_WIDTH-1 downto 0) := (others => '0');
-   signal comb_MemSelD      : std_logic_vector(MEMSELD_WIDTH-1 downto 0) := (others => '1'); -- default not store
-   signal comb_RegWriteEnD  : std_logic_vector(REGWEN_WIDTH-1 downto 0) := (others => '0');
+   signal comb_IsImm        : std_logic := '0';
+   signal comb_HLT          : std_logic := '0';
+   signal comb_RetD         : std_logic := '0';
+   signal comb_PopD         : std_logic := '0';
+   signal comb_RtiD         : std_logic := '0';
+   signal comb_PushD        : std_logic := '0';
+   signal comb_CallD        : std_logic := '0';
+   signal comb_MemDLoadStore: std_logic := '0';
+   signal comb_MemSelD      : std_logic := '1'; -- default not store
+   signal comb_RegWriteEnD  : std_logic := '0';
    signal comb_WbSelD       : std_logic := '0';
-   signal comb_MemWriteD    : std_logic_vector(MEMWRITED_WIDTH-1 downto 0) := (others => '0');
+   signal comb_MemWriteD    : std_logic := '0';
    signal comb_AluOpD       : std_logic_vector(ALUOPD_WIDTH-1 downto 0) := (others => '0');
-   signal comb_JmpZD        : std_logic_vector(JMZ_WIDTH-1 downto 0) := (others => '0');
-   signal comb_JmpCD        : std_logic_vector(JMC_WIDTH-1 downto 0) := (others => '0');
-   signal comb_JmpND        : std_logic_vector(JMN_WIDTH-1 downto 0) := (others => '0');
-   signal comb_JmpD         : std_logic_vector(JMPD_WIDTH-1 downto 0) := (others => '0');
-   signal comb_ExOutSelD    : std_logic_vector(EXOUT_WIDTH-1 downto 0) := (others => '0');
+   signal comb_JmpZD        : std_logic := '0';
+   signal comb_JmpCD        : std_logic := '0';
+   signal comb_JmpND        : std_logic := '0';
+   signal comb_JmpD         : std_logic := '0';
+   signal comb_ExOutSelD    : std_logic := '0';
    signal comb_NotIncSignal : std_logic := '0';
-   signal comb_LoadUseD     : std_logic_vector(LOADUSE_WIDTH-1 downto 0) := (others => '0');
-   signal comb_OutEnD       : std_logic_vector(OUTEN_WIDTH-1 downto 0) := (others => '0');
+   signal comb_LoadUseD     : std_logic := '0';
+   signal comb_OutEnD       : std_logic := '0';
 
 begin
 
@@ -152,27 +131,27 @@ begin
    comb_decode: process(opcode)
    begin
       -- defaults
-      comb_IsImm         <= (others => '0');
-      comb_HLT           <= (others => '0');
-      comb_RetD          <= (others => '0');
-      comb_PopD          <= (others => '0');
-      comb_RtiD          <= (others => '0');
-      comb_PushD         <= (others => '0');
-      comb_CallD         <= (others => '0');
-      comb_MemDLoadStore <= (others => '0');
-      comb_MemSelD       <= (others => '1'); -- not store by default
-      comb_RegWriteEnD   <= (others => '0');
+      comb_IsImm         <= '0';
+      comb_HLT           <= '0';
+      comb_RetD          <= '0';
+      comb_PopD          <= '0';
+      comb_RtiD          <= '0';
+      comb_PushD         <= '0';
+      comb_CallD         <= '0';
+      comb_MemDLoadStore <= '0';
+      comb_MemSelD       <= '1'; -- not store by default
+      comb_RegWriteEnD   <= '0';
       comb_WbSelD        <=  '0';
-      comb_MemWriteD     <= (others => '0');
+      comb_MemWriteD     <= '0';
       comb_AluOpD        <= (others => '0');
-      comb_JmpZD         <= (others => '0');
-      comb_JmpCD         <= (others => '0');
-      comb_JmpND         <= (others => '0');
-      comb_JmpD          <= (others => '0');
-      comb_ExOutSelD     <= (others => '0');
+      comb_JmpZD         <= '0';
+      comb_JmpCD         <= '0';
+      comb_JmpND         <= '0';
+      comb_JmpD          <= '0';
+      comb_ExOutSelD     <= '0';
       comb_NotIncSignal  <= '0';
-      comb_LoadUseD      <= (others => '0');
-      comb_OutEnD        <= (others => '0');
+      comb_LoadUseD      <= '0';
+      comb_OutEnD        <= '0';
       AluOp_override     <= (others => '0');
 
       -- Mapping
@@ -181,127 +160,127 @@ begin
             null;
 
          when OPC_HLT =>
-            comb_HLT <= (others => '1');
+            comb_HLT <= '1';
 
          when OPC_SETC =>
             comb_AluOpD <= ALU_SET_C;
 
          when OPC_RET =>
-            comb_RetD <= (others => '1');
+            comb_RetD <= '1';
 
          when OPC_RTI =>
-            comb_RtiD <= (others => '1');
+            comb_RtiD <= '1';
 
          when OPC_PUSH =>
-            comb_PushD <= (others => '1');
-            comb_MemWriteD <= (others => '1');
-            comb_MemSelD <= (others => '0'); -- store
+            comb_PushD <= '1';
+            comb_MemWriteD <= '1';
+            comb_MemSelD <= '0'; -- store
             comb_AluOpD <= ALU_R2;
 
          when OPC_POP =>
-            comb_PopD <= (others => '1');
-            comb_MemWriteD <= (others => '0');
-            comb_RegWriteEnD <= (others => '1');
+            comb_PopD <= '1';
+            comb_MemWriteD <= '0';
+            comb_RegWriteEnD <= '1';
                comb_WbSelD <= '1';
-            comb_LoadUseD <= (others => '1');
+            comb_LoadUseD <= '1';
 
          when OPC_OUT =>
-            comb_OutEnD <= (others => '1');
+            comb_OutEnD <= '1';
             comb_AluOpD <= ALU_R1;
 
          when OPC_IN =>
-            comb_RegWriteEnD <= (others => '1');
+            comb_RegWriteEnD <= '1';
             comb_WbSelD <= '0';
-            comb_ExOutSelD <= (others => '1');
+            comb_ExOutSelD <= '1';
 
          when OPC_CALL =>
-            comb_CallD <= (others => '1');
-            comb_IsImm <= (others => '1');
-            comb_MemDLoadStore <= (others => '1');
-            comb_MemWriteD <= (others => '1');
-            comb_MemSelD <= (others => '1');
+            comb_CallD <= '1';
+            comb_IsImm <= '1';
+            comb_MemDLoadStore <= '1';
+            comb_MemWriteD <= '1';
+            comb_MemSelD <= '1';
 
          when OPC_INC =>
-            comb_RegWriteEnD <= (others => '1');
+            comb_RegWriteEnD <= '1';
             comb_WbSelD <= '0';
             comb_NotIncSignal <= '1';
             comb_AluOpD <= ALU_INC;
 
          when OPC_NOT =>
-            comb_RegWriteEnD <= (others => '1');
+            comb_RegWriteEnD <= '1';
             comb_WbSelD <= '0';
             comb_NotIncSignal <= '1';
             comb_AluOpD <= ALU_NOT;
 
          when OPC_MOV =>
-            comb_RegWriteEnD <= (others => '1');
+            comb_RegWriteEnD <= '1';
             comb_WbSelD <= '0';
             comb_AluOpD <= ALU_R1;
 
          when OPC_ADD =>
-            comb_RegWriteEnD <= (others => '1');
+            comb_RegWriteEnD <= '1';
             comb_WbSelD <= '0';
             comb_AluOpD <= ALU_ADD;
 
          when OPC_SUB =>
-            comb_RegWriteEnD <= (others => '1');
+            comb_RegWriteEnD <= '1';
             comb_WbSelD <= '0';
             comb_AluOpD <= ALU_SUB;
 
          when OPC_AND =>
-            comb_RegWriteEnD <= (others => '1');
+            comb_RegWriteEnD <= '1';
             comb_WbSelD <= '0';
             comb_AluOpD <= ALU_AND;
 
          when OPC_JZ =>
-            comb_JmpZD <= (others => '1');
-            comb_IsImm <= (others => '1');
+            comb_JmpZD <= '1';
+            comb_IsImm <= '1';
             comb_AluOpD <= ALU_NOP;
 
          when OPC_JN =>
-            comb_JmpND <= (others => '1');
-            comb_IsImm <= (others => '1');
+            comb_JmpND <= '1';
+            comb_IsImm <= '1';
             comb_AluOpD <= ALU_NOP;
 
          when OPC_JC =>
-            comb_JmpCD <= (others => '1');
-            comb_IsImm <= (others => '1');
+            comb_JmpCD <= '1';
+            comb_IsImm <= '1';
             comb_AluOpD <= ALU_NOP;
 
          when OPC_JMP =>
-            comb_JmpD <= (others => '1');
-            comb_IsImm <= (others => '1');
+            comb_JmpD <= '1';
+            comb_IsImm <= '1';
             comb_AluOpD <= ALU_NOP;
 
          when OPC_IADD =>
-            comb_IsImm <= (others => '1');
-            comb_RegWriteEnD <= (others => '1');
+            comb_IsImm <= '1';
+            comb_RegWriteEnD <= '1';
             comb_WbSelD <= '0';
             comb_AluOpD <= ALU_ADD;
 
          when OPC_LDM =>
-            comb_IsImm <= (others => '1');
-            comb_RegWriteEnD <= (others => '1');
+            comb_IsImm <= '1';
+            comb_RegWriteEnD <= '1';
             comb_WbSelD <= '0';
             comb_AluOpD <= ALU_R2;
          when OPC_LDD =>
-            comb_IsImm <= (others => '1');
-            comb_MemDLoadStore <= (others => '1');
-            comb_MemWriteD <= (others => '0');
-            comb_RegWriteEnD <= (others => '1');
+            comb_IsImm <= '1';
+            comb_MemDLoadStore <= '1';
+            comb_MemWriteD <= '0';
+            comb_RegWriteEnD <= '1';
             comb_WbSelD <= '1';
-            comb_LoadUseD <= (others => '1');
+            comb_LoadUseD <= '1';
             comb_AluOpD <= ALU_ADD;
 
          when OPC_STD =>
-            comb_IsImm <= (others => '1');
-            comb_MemDLoadStore <= (others => '1');
-            comb_MemWriteD <= (others => '1');
-            comb_MemSelD <= (others => '0');
+            comb_IsImm <= '1';
+            comb_MemDLoadStore <= '1';
+            comb_MemWriteD <= '1';
+            comb_MemSelD <= '0';
             comb_AluOpD <= ALU_ADD;
 
          when OPC_INT =>
-            comb_IsImm <= (others => '1');
+            comb_IsImm <= '1';
             -- actual INT effects (mem/alu) come from FSM overrides
 
          when others =>
@@ -350,41 +329,41 @@ begin
          -- SWAP overrides (phase1: "01", phase2: "10")
          if swap_state = 0 then
             SwapD_reg <= (others => '0');
-            SwapCtrl_reg <= (others => '0');
-            RegWrite_override <= (others => '0');
+            SwapCtrl_reg <= '0';
+            RegWrite_override <= '0';
          elsif swap_state = 1 then
             -- phase1
             SwapD_reg <= std_logic_vector(to_unsigned(1, SWAPD_WIDTH)); -- "01"
-            SwapCtrl_reg <= (others => '1'); --bit = '1'
-            RegWrite_override <= (others => '1'); -- SWAP is WB both cycles
+            SwapCtrl_reg <= '1';
+            RegWrite_override <= '1'; -- SWAP is WB both cycles
             AluOp_override <= ALU_R2;
          else
             -- phase2
             SwapD_reg <= std_logic_vector(to_unsigned(2, SWAPD_WIDTH)); -- "10"
-            SwapCtrl_reg <= (others => '0');
-            RegWrite_override <= (others => '1'); -- still WB
+            SwapCtrl_reg <= '0';
+            RegWrite_override <= '1'; -- still WB
             AluOp_override <= ALU_R1;
          end if;
 
          -- INT overrides (phase1: Int1=1, Int2=0, mem store; phase2: Int1=0, Int2=1, memread + ALU_ADD_PLUS2)
          if int_state = 0 then
-            Int1_reg <= (others => '0');
-            Int2_reg <= (others => '0');
-            MemD_override <= (others => '0');
-            MemWrite_override <= (others => '0');
+            Int1_reg <= '0';
+            Int2_reg <= '0';
+            MemD_override <= '0';
+            MemWrite_override <= '0';
          elsif int_state = 1 then
             -- phase1
-            Int1_reg <= (others => '1');
-            Int2_reg <= (others => '0');
-            MemD_override <= (others => '1');
-            MemWrite_override <= (others => '1'); -- store
+            Int1_reg <= '1';
+            Int2_reg <= '0';
+            MemD_override <= '1';
+            MemWrite_override <= '1'; -- store
             AluOp_override <= (others => '0');
          else
             -- phase2
-            Int1_reg <= (others => '0');
-            Int2_reg <= (others => '1');
-            MemD_override <= (others => '1');
-            MemWrite_override <= (others => '0');
+            Int1_reg <= '0';
+            Int2_reg <= '1';
+            MemD_override <= '1';
+            MemWrite_override <= '0';
             AluOp_override <= ALU_ADD_PLUS2; -- perform +2 on index ig
          end if;
 
@@ -402,9 +381,9 @@ begin
    Int2D    <= Int2_reg;
 
    -- Simple OR combinations
-   RegWriteEnD <= std_logic_vector( (unsigned(comb_RegWriteEnD) or unsigned(RegWrite_override)) );
-   MemDLoadStore <= std_logic_vector( (unsigned(comb_MemDLoadStore) or unsigned(MemD_override)) );
-   MemWriteD <= std_logic_vector( (unsigned(comb_MemWriteD) or unsigned(MemWrite_override)) );
+   RegWriteEnD <= comb_RegWriteEnD or RegWrite_override;
+   MemDLoadStore <= comb_MemDLoadStore or MemD_override;
+   MemWriteD <= comb_MemWriteD or MemWrite_override;
 
    -- For AluOp: override if non-zero, else combinational
    AluOpD <= AluOp_override when AluOp_override /= "0000" else comb_AluOpD;

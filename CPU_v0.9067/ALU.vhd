@@ -21,8 +21,6 @@ end entity;
 architecture ALU_arch of ALU is
 
     signal A, B       : signed(31 downto 0);
-    signal result     : signed(31 downto 0);
-    signal carry_flag : std_logic;
     signal flagsen    : std_logic;
 
     -- internal flags
@@ -113,7 +111,6 @@ begin
     nf_i <= res_v(31);
     cf_i <= carry_v;
 
-    result  <= res_v;
     AluOut  <= std_logic_vector(res_v);
     FEN     <= flagsen;
 end process;
@@ -124,4 +121,3 @@ end process;
     NF <= '0' when RSTNF = '1' else nf_i;
 
 end architecture;
-
