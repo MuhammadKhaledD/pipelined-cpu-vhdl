@@ -84,7 +84,7 @@ BEGIN
     ------------------------------
     S0F <= Branch OR reset or interrupt;
     S1F <= INT2M OR reset OR interrupt or RTIM OR RETM;
-    PCen <= not (SwapCtrl OR HLT);
+    PCen <= SwapCtrl OR HLT;
 
 
     PC_src_s <= PC_addr when (S1F='0' and S0F='0') else
@@ -96,13 +96,13 @@ BEGIN
     PCport : entity work.PC_Register
         port map (
             clk    => clk,
-            en     => PCen,
+            en     => not PCen,
             PC_src => PC_src_s,
             PC_out => PC_out_s
         );
 
     PC_addr <= std_logic_vector(unsigned(PC_out_s) + 1);
-    PC1f <= std_logic_vector(unsigned(PC_out_s) + 1);
+    PC1f <= PC_addr;
 
 
     -------------------------------------------------
@@ -116,16 +116,15 @@ BEGIN
                 ExOutM                           when (S2M='0' and S1M='0' and S0M='1') else   -- 1
                 PSPM                             when (S2M='0' and S1M='1' and S0M='0') else   -- 2
                 SP                               when (S2M='0' and S1M='1' and S0M='1') else   -- 3
-                (others => '0')                 when (reset='0' and interrupt='1') else    -- 4 → small mux = 0
-                (31 downto 1 => '0') & '1';                                        -- 4 → small mux = 1
+                ResetData                 when (reset='1' and interrupt='0') else    -- 4 → small mux = 0
+                ResetData;                                                -- 4 → small mux = 1
 
     -- -------------------------------------------------
     -- -- Write Data MUX
     -- -------------------------------------------------
-    	WriteDataM <= RD2M WHEN MemSelM = '0' ELSE
+    	WriteDataM <= RD2M WHEN MemSelM='0' ELSE
          	      PC1M WHEN interrupt='0' ELSE
-                  std_logic_vector(unsigned(PC1M) - 1);
-    -------------------------------------------------
+                  std_logic_vector(unsigned(PC1M) - 1) else;
 
 
     	MemAddr <= AddressM;
