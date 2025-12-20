@@ -30,7 +30,7 @@ ENTITY Decode_Stage  IS
         MemDLoadStore : out std_logic_vector(1-1 downto 0);
         MemSelD       : out std_logic_vector(1-1 downto 0);
         RegWriteEnD   : out std_logic_vector(1-1 downto 0);
-        WbSelD        : out std_logic_vector(2-1 downto 0);
+        WbSelD        : out std_logic := '0';
         SwapD         : out std_logic_vector(2-1 downto 0);
         MemWriteD     : out std_logic_vector(1-1 downto 0);
         AluOpD        : out std_logic_vector(4-1 downto 0);
@@ -45,18 +45,6 @@ ENTITY Decode_Stage  IS
 END ENTITY;
 
 ARCHITECTURE struct OF Decode_Stage IS
-
-    component RegFile is
-    port(
-        clk, rst      : in std_logic := '0';
-        RegWriteEn    : in std_logic := '0';                  
-        wa            : in std_logic_vector(2 downto 0) := "000"; 
-        w_data        : in std_logic_vector(31 downto 0) := x"0000_0000";
-        ra_1, ra_2    : in std_logic_vector(2 downto 0) := "000"; 
-
-        r_data1, r_data2 : out std_logic_vector(31 downto 0) := x"0000_0000"
-    );
-    end component;
 
     component cu is
        port(
@@ -76,7 +64,7 @@ ARCHITECTURE struct OF Decode_Stage IS
             MemDLoadStore : out std_logic_vector(1-1 downto 0);
             MemSelD       : out std_logic_vector(1-1 downto 0);
             RegWriteEnD   : out std_logic_vector(1-1 downto 0);
-            WbSelD        : out std_logic_vector(2-1 downto 0);
+            WbSelD        : out std_logic := '0';
             SwapD         : out std_logic_vector(2-1 downto 0);
             MemWriteD     : out std_logic_vector(1-1 downto 0);
             AluOpD        : out std_logic_vector(4-1 downto 0);
@@ -95,9 +83,6 @@ ARCHITECTURE struct OF Decode_Stage IS
     signal s_Rsrc1    : std_logic_vector(2 downto 0);
     signal s_Rsrc2    : std_logic_vector(2 downto 0);
     signal s_Rdst     : std_logic_vector(2 downto 0);
-
-    signal s_RD1      : std_logic_vector(31 downto 0);
-    signal s_RD2      : std_logic_vector(31 downto 0);
 
     -- cu outputs that are not exposed as ports (we map most CU outputs directly to entity ports)
     signal s_NotIncSignal : std_logic;

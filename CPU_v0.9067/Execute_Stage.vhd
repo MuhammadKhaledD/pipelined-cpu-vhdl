@@ -13,13 +13,13 @@ ENTITY Excute_Stage  IS
         RSrc2D  : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
         Rdst    : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
         ImmE    : IN std_logic_vector(31 downto 0);
-        InputPort : IN std_logic_vector(31 downto 0);
-        interrupt  : IN std_logic_vector(0 downto 0);
-  -- forward unit controls
-        ExoutM  : IN std_logic_vector(31 downto 0);
-        RegDataWB : IN std_logic_vector(31 downto 0);
-        ForwardA : IN std_logic_vector(1 downto 0);
-        ForwardB : IN std_logic_vector(1 downto 0);
+        InputPort   : IN std_logic_vector(31 downto 0);
+        interrupt   : IN std_logic_vector(0 downto 0);
+        -- forward unit controls
+        ExoutM      : IN std_logic_vector(31 downto 0);
+        RegDataWB   : IN std_logic_vector(31 downto 0);
+        ForwardA    : IN std_logic_vector(1 downto 0);
+        ForwardB    : IN std_logic_vector(1 downto 0);
         SwapE         : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
         AluOpE        : IN std_logic_vector(3 downto 0);
         JmpZDE        : IN std_logic_vector(0 downto 0);

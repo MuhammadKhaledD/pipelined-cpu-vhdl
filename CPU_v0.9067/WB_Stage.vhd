@@ -18,7 +18,8 @@ ARCHITECTURE Behavioral OF WB_Stage IS
 BEGIN
     
     WITH WBSelWB SELECT
-        RegDataWB <= EXOutWB   WHEN "0",
-                     MemOutWB  WHEN "1";
+        RegDataWB <= EXOutWB   WHEN '0',
+                    MemOutWB WHEN '1',
+                    EXOutWB  WHEN OTHERS;
 
 END ARCHITECTURE;

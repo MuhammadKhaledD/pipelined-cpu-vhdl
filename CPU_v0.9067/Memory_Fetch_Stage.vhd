@@ -33,7 +33,7 @@ ENTITY Memory_Fetch_Stages IS
         MemDataM    : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         ResetData   : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         ImmE        : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        PCenH       : IN STD_LOGIC;
+        PC_enableH  : IN STD_LOGIC;
 
         RegWriteEnWM : OUT STD_LOGIC;
         EXOutWM      : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -85,7 +85,7 @@ BEGIN
     ------------------------------
     S0F <= Branch OR reset or interrupt;
     S1F <= INT2M OR reset OR interrupt or RTIM OR RETM;
-    PCen <= not (SwapCtrl OR HLT OR PCenH);
+    PCen <= not (SwapCtrl OR HLT OR PC_enableH);
 
 
     PC_src_s <= PC_addr when (S1F='0' and S0F='0') else
