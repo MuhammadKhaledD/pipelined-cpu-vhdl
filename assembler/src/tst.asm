@@ -1,4 +1,0 @@
-LDM R1, 0x100
-ADD R2, R1, R1
-JMP 0x10
-HLT
