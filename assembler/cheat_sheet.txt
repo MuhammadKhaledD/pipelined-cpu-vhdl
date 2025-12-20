@@ -3,7 +3,7 @@ ASSEMBLER CHEAT SHEET
 ===============================
 
 BASIC USAGE
-    python assembler_simple_imm.py src/code.asm -o results/result.txt
+    python assembler_simple_imm.py src/code.asm -o results/result.mem
 
 FILE FORMAT
     • Output is raw 32-bit LITTLE-ENDIAN words.

@@ -189,14 +189,23 @@ def assemble_file(src, dst):
             except Exception as e:
                 raise ValueError(f"{src}:{i}: {e}")
 
-    # write output as memory format with addresses
-    with open(dst, "w") as out:
-        out.write(r'''// memory data file (do not edit the following line - required for mem load use)
+    # write output based on file extension
+    if dst.endswith('.mem'):
+        # Binary .mem format - raw 32-bit words in little-endian
+        with open(dst, 'wb') as out:
+            for addr in sorted(memory.keys()):
+                word = memory[addr]
+                # Write as little-endian 32-bit value
+                out.write(word.to_bytes(4, byteorder='little', signed=False))
+    else:
+        # Text format with addresses (VHDL memory format)
+        with open(dst, "w") as out:
+            out.write(r'''// memory data file (do not edit the following line - required for mem load use)
 // instance=/ram/ram
 // format=mti addressradix=d dataradix=b version=1.0 wordsperline=1
 ''')
-        for addr in sorted(memory.keys()):
-            out.write(f'{addr}: {memory[addr]:032b}\n')
+            for addr in sorted(memory.keys()):
+                out.write(f'{addr}: {memory[addr]:032b}\n')
 
     print(f"Wrote {len(memory)} words to {dst}")
 
