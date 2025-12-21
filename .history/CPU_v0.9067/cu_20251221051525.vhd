@@ -122,6 +122,7 @@ constant ALUOPD_WIDTH     : natural := 4;
    signal comb_NotIncSignal : std_logic := '0';
    signal comb_LoadUseD     : std_logic := '0';
    signal comb_OutEnD       : std_logic := '0';
+   signal comb_SwapReq : std_logic;
 
 begin
 
@@ -152,6 +153,7 @@ begin
       comb_NotIncSignal  <= '0';
       comb_LoadUseD      <= '0';
       comb_OutEnD        <= '0';
+      AluOp_override     <= (others => '0');
 
       -- Mapping
       case opcode is
@@ -282,6 +284,8 @@ begin
             comb_IsImm <= '1';
             -- actual INT effects (mem/alu) come from FSM overrides
 
+         comb_SwapReq <= '1' when opcode = OPC_SWAP else '0';
+
          when others =>
             null;
       end case;
@@ -326,46 +330,48 @@ begin
          end if;
 
          -- SWAP overrides (phase1: "01", phase2: "10")
-         if swap_state = 0 then
-            SwapD_reg <= (others => '0');
-            SwapCtrl_reg <= '0';
-            RegWrite_override <= '0';
-            AluOp_override <= (others => '0');
-         elsif swap_state = 1 then
-            -- phase1
+         -- Immediate assignment when opcode = SWAP and state = 1
+         if (opcode = OPC_SWAP and swap_state = 0) or swap_state = 1 then
+            -- phase1: Activate immediately or continue from previous cycle
             SwapD_reg <= std_logic_vector(to_unsigned(1, SWAPD_WIDTH)); -- "01"
             SwapCtrl_reg <= '1';
             RegWrite_override <= '1'; -- SWAP is WB both cycles
             AluOp_override <= ALU_R2;
-         else
+         elsif swap_state = 2 then
             -- phase2
             SwapD_reg <= std_logic_vector(to_unsigned(2, SWAPD_WIDTH)); -- "10"
             SwapCtrl_reg <= '0';
             RegWrite_override <= '1'; -- still WB
             AluOp_override <= ALU_R1;
+         else
+            -- state 0 and no SWAP detected
+            SwapD_reg <= (others => '0');
+            SwapCtrl_reg <= '0';
+            RegWrite_override <= '0';
          end if;
 
          -- INT overrides (phase1: Int1=1, Int2=0, mem store; phase2: Int1=0, Int2=1, memread + ALU_ADD_PLUS2)
-         if int_state = 0 then
-            Int1_reg <= '0';
-            Int2_reg <= '0';
-            MemD_override <= '0';
-            MemWrite_override <= '0';
-            AluOp_override <= (others => '0');
-         elsif int_state = 1 then
-            -- phase1
+         -- Immediate assignment when opcode = INT and state = 1
+         if (opcode = OPC_INT and int_state = 0) or int_state = 1 then
+            -- phase1: Activate immediately or continue from previous cycle
             Int1_reg <= '1';
             Int2_reg <= '0';
             MemD_override <= '1';
             MemWrite_override <= '1'; -- store
             AluOp_override <= (others => '0');
-         else
+         elsif int_state = 2 then
             -- phase2
             Int1_reg <= '0';
             Int2_reg <= '1';
             MemD_override <= '1';
             MemWrite_override <= '0';
             AluOp_override <= ALU_ADD_PLUS2; -- perform +2 on index ig
+         else
+            -- state 0 and no INT detected
+            Int1_reg <= '0';
+            Int2_reg <= '0';
+            MemD_override <= '0';
+            MemWrite_override <= '0';
          end if;
 
       end if;
@@ -376,7 +382,7 @@ begin
    ----------------------------------------------------------------
 
    -- Direct FSM outputs
-   SwapCtrl <= SwapCtrl_reg;
+   SwapCtrl <=comb_SwapReq or SwapCtrl_reg;
    SwapD    <= SwapD_reg;
    Int1D    <= Int1_reg;
    Int2D    <= Int2_reg;

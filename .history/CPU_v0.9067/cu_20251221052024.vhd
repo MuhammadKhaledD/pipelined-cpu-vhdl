@@ -330,7 +330,6 @@ begin
             SwapD_reg <= (others => '0');
             SwapCtrl_reg <= '0';
             RegWrite_override <= '0';
-            AluOp_override <= (others => '0');
          elsif swap_state = 1 then
             -- phase1
             SwapD_reg <= std_logic_vector(to_unsigned(1, SWAPD_WIDTH)); -- "01"
@@ -351,7 +350,6 @@ begin
             Int2_reg <= '0';
             MemD_override <= '0';
             MemWrite_override <= '0';
-            AluOp_override <= (others => '0');
          elsif int_state = 1 then
             -- phase1
             Int1_reg <= '1';

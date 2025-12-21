@@ -351,7 +351,6 @@ begin
             Int2_reg <= '0';
             MemD_override <= '0';
             MemWrite_override <= '0';
-            AluOp_override <= (others => '0');
          elsif int_state = 1 then
             -- phase1
             Int1_reg <= '1';
