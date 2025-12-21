@@ -1,4 +1,3 @@
--- cu.vhd
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -308,7 +307,9 @@ begin
             end if;
          elsif swap_state = 1 then
             swap_state := 2;
-         else -- swap_state = 2
+         elsif swap_state = 2 and opcode = OPC_SWAP then
+            swap_state := 1;
+         else
             swap_state := 0;
          end if;
 
@@ -326,7 +327,7 @@ begin
          end if;
 
          -- SWAP overrides (phase1: "01", phase2: "10")
-         if swap_state = 0 then
+         if swap_state = 0 and int_state = 0 then
             SwapD_reg <= (others => '0');
             SwapCtrl_reg <= '0';
             RegWrite_override <= '0';
@@ -351,7 +352,6 @@ begin
             Int2_reg <= '0';
             MemD_override <= '0';
             MemWrite_override <= '0';
-            AluOp_override <= (others => '0');
          elsif int_state = 1 then
             -- phase1
             Int1_reg <= '1';
@@ -387,7 +387,7 @@ begin
    MemWriteD <= comb_MemWriteD or MemWrite_override;
 
    -- For AluOp: override if non-zero, else combinational
-   AluOpD <= AluOp_override when AluOp_override /= "0000" else comb_AluOpD;
+   AluOpD <= AluOp_override when (SwapD_reg = "01" or SwapD_reg = "10" or Int1_reg = '1' or Int2_reg = '1') else comb_AluOpD;
 
    -- Remaining outputs come straight from combinational decode (these are unaffected by FSM, except where we used overrides above)
    IsImm       <= comb_IsImm;
