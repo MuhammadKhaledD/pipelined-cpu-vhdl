@@ -482,7 +482,6 @@ ARCHITECTURE struct OF CPU IS
     signal sig_WB_RegDataWB   : std_logic_vector(31 downto 0);
 
     -- Control signal MUXes
-    signal sig_Imm_immediate  : std_logic_vector(31 downto 0);
 
     -- Forwarding Unit outputs
     signal sig_ForwardA : std_logic_vector(1 downto 0);
@@ -624,7 +623,7 @@ BEGIN
         );
 
     -- Extract immediate from instruction (bits 15:0 sign-extended to 32 bits)
-    sig_Imm_immediate <= std_logic_vector(resize(signed(sig_IF_ID_instruction(15 downto 0)), 32));
+
 
     -- ================================================================
     -- -- DECODE/EXECUTE PIPELINE REGISTER (ID/EX)
@@ -663,7 +662,7 @@ BEGIN
             Rsrc1D      => sig_ID_Rsrc1,
             Rsrc2D      => sig_ID_Rsrc2,
             RdstD       => sig_ID_Rdst,
-            ImmF        => sig_Imm_immediate,
+            ImmF        => sig_DataMemory_ReadData,
             IsIMM_E     => sig_ID_EX_IsImm,
             RET_E       => sig_ID_EX_RetE,
             POP_E       => sig_ID_EX_PopE,
