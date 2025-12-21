@@ -195,12 +195,28 @@ def assemble_file(src, dst):
                         curr_r1 = parse_reg(curr_ops[0])
                         curr_r2 = parse_reg(curr_ops[1])
                         prev_r1 = parse_reg(prev_ops[0])
+                        prev_r2 = parse_reg(prev_ops[1])
                         
-                        # If first register of current SWAP matches first register of previous SWAP
-                        if curr_r1 == prev_r1:
-                            # Flip the operands: SWAP R1, R2 becomes SWAP R2, R1
-                            ops_str = f"{curr_ops[1]}, {curr_ops[0]}"
-                            print(f"Optimized line {i}: SWAP operands flipped to {ops_str}")
+                        # Find which register is common and keep it in the same position
+                        # If prev_r1 is the common register, it must stay in position 1
+                        # If prev_r2 is the common register, it must stay in position 2
+                        
+                        if curr_r1 == prev_r1 or curr_r2 == prev_r1:
+                            # Common register is prev_r1 (was in position 1)
+                            # Make sure it's in position 1 of current SWAP
+                            if curr_r2 == prev_r1:
+                                # It's in position 2, flip to position 1
+                                ops_str = f"{curr_ops[1]}, {curr_ops[0]}"
+                                print(f"Optimized line {i}: SWAP operands flipped to {ops_str}")
+                        
+                        if curr_r1 == prev_r2 or curr_r2 == prev_r2:
+                            # Common register is prev_r2 (was in position 2)
+                            # Make sure it's in position 2 of current SWAP
+                            if curr_r1 == prev_r2:
+                                # It's in position 1, flip to position 2
+                                ops_str = f"{curr_ops[1]}, {curr_ops[0]}"
+                                print(f"Optimized line {i}: SWAP operands flipped to {ops_str}")
+                            
                     except:
                         pass  # If parsing fails, just proceed normally
 
