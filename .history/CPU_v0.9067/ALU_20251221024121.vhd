@@ -21,7 +21,7 @@ end entity;
 architecture ALU_arch of ALU is
 
     signal A, B       : signed(31 downto 0);
-    
+    signal flagsen    : std_logic;
 
     -- internal flags
     signal zf_i, cf_i, nf_i : std_logic;
@@ -46,12 +46,11 @@ begin
     variable tmp        : signed(32 downto 0);
     variable res_v      : signed(31 downto 0);
     variable carry_v    : std_logic;
-    variable flagsen    : std_logic;
 begin
     -- defaults
     res_v   := (others => '0');
     carry_v := '0';
-    flagsen := '0';
+    flagsen <= '0';
 
     case ALU_OPctrl is
 
@@ -61,27 +60,27 @@ begin
             tmp := resize(A, 33) + resize(B, 33);
             res_v   := tmp(31 downto 0);
             carry_v := tmp(32);
-            flagsen := '1';
+            flagsen <= '1';
 
         when ALU_SUB =>
             tmp := resize(A, 33) - resize(B, 33);
             res_v   := tmp(31 downto 0);
             carry_v := not tmp(32);
-           flagsen := '1';
+            flagsen <= '1';
 
         when ALU_AND =>
             res_v := A and B;
-            flagsen := '1';
+            flagsen <= '1';
 
         when ALU_NOT =>
             res_v := not A;
-            flagsen := '1';
+            flagsen <= '1';
 
         when ALU_INC =>
             tmp := resize(A, 33) + 1;
             res_v   := tmp(31 downto 0);
             carry_v := tmp(32);
-            flagsen := '1';
+            flagsen <= '1';
 
         when ALU_R1 =>
             res_v := A;
@@ -97,7 +96,7 @@ begin
         when ALU_SET_C =>
             res_v   := (others => '0');
             carry_v := '1';
-            flagsen := '1';
+            flagsen <= '1';
 
         when others =>
             null;

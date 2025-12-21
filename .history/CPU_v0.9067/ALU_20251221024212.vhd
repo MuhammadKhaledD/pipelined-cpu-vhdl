@@ -61,17 +61,17 @@ begin
             tmp := resize(A, 33) + resize(B, 33);
             res_v   := tmp(31 downto 0);
             carry_v := tmp(32);
-            flagsen := '1';
+            flagsen <= '1';
 
         when ALU_SUB =>
             tmp := resize(A, 33) - resize(B, 33);
             res_v   := tmp(31 downto 0);
             carry_v := not tmp(32);
-           flagsen := '1';
+            flagsen <= '1';
 
         when ALU_AND =>
             res_v := A and B;
-            flagsen := '1';
+            flagsen <= '1';
 
         when ALU_NOT =>
             res_v := not A;
