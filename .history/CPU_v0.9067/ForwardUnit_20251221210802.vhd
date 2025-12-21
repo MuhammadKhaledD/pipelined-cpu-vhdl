@@ -38,7 +38,7 @@ begin
             end if;
 
         -- Check for forwarding to operand B
-            if (regWrite_MEM = '1') and (rd_MEM /= "000") and (rd_MEM = rs2) and SwapE /="10" then
+            if (regWrite_MEM = '1') and (rd_MEM /= "000") and (rd_MEM = rs2) then
                 forwardB <= "10";  -- Forward from EX/MEM buffer
             elsif (regWrite_WB = '1') and (rd_WB /= "000") and (rd_WB = rs2) then
                 forwardB <= "01";  -- Forward from  MEM/WB buffer
