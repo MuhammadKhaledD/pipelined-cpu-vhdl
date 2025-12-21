@@ -85,7 +85,7 @@ BEGIN
     ------------------------------
     S0F <= Branch OR reset or interrupt;
     S1F <= INT2M OR reset OR interrupt or RTIM OR RETM;
-    PCen <= not SwapCtrl and not HLT and PC_enableH;
+    PCen <= not (SwapCtrl OR HLT OR PC_enableH);
 
 
     PC_src_s <= PC_addr when (S1F='0' and S0F='0') else
@@ -117,7 +117,7 @@ BEGIN
                 ExOutM                           when (S2M='0' and S1M='0' and S0M='1') else   -- 1
                 PSPM                             when (S2M='0' and S1M='1' and S0M='0') else   -- 2
                 SP                               when (S2M='0' and S1M='1' and S0M='1') else   -- 3
-                (31 downto 1 => '0') & '1'       when (reset='0' and interrupt='1') else    -- 4 → small mux = 0
+                   (31 downto 1 => '0') & '1'            when (reset='0' and interrupt='1') else    -- 4 → small mux = 0
                 (others => '0')   ;                                        -- 4 → small mux = 1
 
     -- -------------------------------------------------

@@ -532,7 +532,7 @@ BEGIN
             PSPM          => sig_EX_MEM_PSP,
             SP            => sig_EX_SP,
             MemDataM      => sig_DataMemory_ReadData,
-            ResetData     => (others => '0'),
+            ResetData     => sig_DataMemory_ReadData,
             ImmE          => sig_ID_EX_Imm,
             PC_enableH    => sig_PC_enable,
             RegWriteEnWM  => sig_MEM_RegWriteEnWM,

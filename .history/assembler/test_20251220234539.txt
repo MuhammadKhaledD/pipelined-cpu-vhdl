@@ -1,0 +1,6 @@
+; Basic instructions test
+NOP
+SETC
+RET
+RTI
+HLT

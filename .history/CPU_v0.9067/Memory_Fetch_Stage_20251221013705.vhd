@@ -85,7 +85,7 @@ BEGIN
     ------------------------------
     S0F <= Branch OR reset or interrupt;
     S1F <= INT2M OR reset OR interrupt or RTIM OR RETM;
-    PCen <= not SwapCtrl and not HLT and PC_enableH;
+    PCen <= not SwapCtrl not and HLT OR PC_enableH);
 
 
     PC_src_s <= PC_addr when (S1F='0' and S0F='0') else

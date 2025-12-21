@@ -1,0 +1,4 @@
+; Basic instructions test
+NOP
+SETC
+HLT
