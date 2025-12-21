@@ -144,6 +144,8 @@ def get_immediate(m, ops_str):
 def assemble_file(src, dst):
     memory = {}  # address -> 32-bit word
     current_address = 0
+    prev_mnemonic = None
+    prev_ops_str = None
     
     with open(src, 'r') as f:
         for i, line in enumerate(f, start=1):
@@ -164,6 +166,8 @@ def assemble_file(src, dst):
                     current_address = parse_int(ops_str)
                 except Exception as e:
                     raise ValueError(f"{src}:{i}: .ORG invalid address: {e}")
+                prev_mnemonic = None
+                prev_ops_str = None
                 continue
             
             # Handle immediate values (raw hex values in memory)
@@ -175,7 +179,30 @@ def assemble_file(src, dst):
                     current_address += 1
                 except Exception as e:
                     raise ValueError(f"{src}:{i}: Invalid instruction or immediate: {e}")
+                prev_mnemonic = None
+                prev_ops_str = None
                 continue
+
+            # SWAP optimization logic
+            if mnemonic.upper() == "SWAP" and prev_mnemonic == "SWAP":
+                # Parse operands of both SWAP instructions
+                curr_ops = [o.strip() for o in ops_str.split(",") if o.strip()]
+                prev_ops = [o.strip() for o in prev_ops_str.split(",") if o.strip()]
+                
+                if len(curr_ops) == 2 and len(prev_ops) == 2:
+                    # Get register numbers
+                    try:
+                        curr_r1 = parse_reg(curr_ops[0])
+                        curr_r2 = parse_reg(curr_ops[1])
+                        prev_r1 = parse_reg(prev_ops[0])
+                        
+                        # If first register of current SWAP matches first register of previous SWAP
+                        if curr_r1 == prev_r1:
+                            # Flip the operands: SWAP R1, R2 becomes SWAP R2, R1
+                            ops_str = f"{curr_ops[1]}, {curr_ops[0]}"
+                            print(f"Optimized line {i}: SWAP operands flipped to {ops_str}")
+                    except:
+                        pass  # If parsing fails, just proceed normally
 
             try:
                 instr = encode_instruction(mnemonic, ops_str)
@@ -190,6 +217,10 @@ def assemble_file(src, dst):
                     current_address += 1
             except Exception as e:
                 raise ValueError(f"{src}:{i}: {e}")
+            
+            # Track previous instruction for SWAP optimization
+            prev_mnemonic = mnemonic.upper()
+            prev_ops_str = ops_str
 
     # write output based on file extension
     if dst.endswith('.mem'):
