@@ -62,7 +62,12 @@ def encode_instruction(m, ops_str):
             raise ValueError(f"{m} takes no operands")
 
     # single-source register
-    elif m in ("PUSH", "OUT", "INC", "NOT"):
+    elif m == "PUSH":
+        if len(ops) != 1:
+            raise ValueError("PUSH requires 1 register")
+        rsrc2 = parse_reg(ops[0])
+
+    elif m in ("OUT", "INC", "NOT"):
         if len(ops) != 1:
             raise ValueError(f"{m} requires 1 register")
         rsrc1 = parse_reg(ops[0])
