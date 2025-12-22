@@ -65,15 +65,12 @@ ARCHITECTURE struct OF Excute_Stage IS
             SrcA       : in  std_logic_vector(31 downto 0);
             SrcB       : in  std_logic_vector(31 downto 0);
             ALU_OPctrl : in  std_logic_vector(3 downto 0);
-            RSTZF      : in  std_logic;
-            RSTCF      : in  std_logic;
-            RSTNF      : in  std_logic;
 
             AluOut     : out std_logic_vector(31 downto 0);
             ZF         : out std_logic;
             CF         : out std_logic;
             NF         : out std_logic;
-            FEN        : out std_logic
+            FEN        : out std_logic_vector(2 downto 0)
         );
     end component;
 
@@ -81,7 +78,7 @@ ARCHITECTURE struct OF Excute_Stage IS
         port (
             clk      : in  std_logic;
             rst      : in  std_logic;
-            enable   : in  std_logic;
+            enable   : in  std_logic_vector(2 downto 0);
             Z_in     : in  std_logic;
             N_in     : in  std_logic;
             C_in     : in  std_logic;
@@ -113,12 +110,14 @@ ARCHITECTURE struct OF Excute_Stage IS
     signal alu_ZF    : std_logic;
     signal alu_CF    : std_logic;
     signal alu_NF    : std_logic;
-    signal alu_FEN   : std_logic;
+    signal alu_FEN   : std_logic_vector(2 downto 0);
 
     -- CCR outputs (stable flags)
     signal ccr_Z     : std_logic;
     signal ccr_N     : std_logic;
     signal ccr_C     : std_logic;
+    signal ccr_enable : std_logic_vector(2 downto 0);
+    signal ccr_in : std_logic_vector(2 downto 0);
 
     -- SP register wires
     signal sp_PSP    : std_logic_vector(31 downto 0);
@@ -196,6 +195,14 @@ begin
     cf_and_jc <= ccr_C and sel_jmpc;
     nf_and_jn <= ccr_N and sel_jmpn;
 
+    ccr_enable(0) <= '1' when zf_and_jz = '1' else alu_FEN(0);
+    ccr_enable(1) <= '1' when nf_and_jn = '1' else alu_FEN(1);
+    ccr_enable(2) <= '1' when cf_and_jc = '1' else alu_FEN(2);
+
+    ccr_in(0) <= '0' when zf_and_jz = '1' else alu_ZF;
+    ccr_in(1) <= '0' when nf_and_jn = '1' else alu_NF;
+    ccr_in(2) <= '0' when cf_and_jc = '1' else alu_CF;
+
     preserve_s <= '1' when (sel_int1e = '1') or (interrupt = '1') else '0';
 
     sp_plus_s  <= '1' when (sel_pope = '1') or (sel_rete = '1') or (sel_rtie = '1') else '0';
@@ -212,9 +219,6 @@ begin
             SrcA       => alu_SrcA,
             SrcB       => alu_SrcB,
             ALU_OPctrl => AluOpE,
-            RSTZF      => zf_and_jz,   -- consume Z flag on successful JZ
-            RSTCF      => cf_and_jc,   -- consume C flag on successful JC
-            RSTNF      => nf_and_jn,   -- consume N flag on successful JN
             AluOut     => alu_Out,
             ZF         => alu_ZF,
             CF         => alu_CF,
@@ -230,10 +234,10 @@ begin
         port map (
             clk      => clk,
             rst      => rst,
-            enable   => alu_FEN,                           -- update flags when ALU indicates valid
-            Z_in     => alu_ZF,
-            N_in     => alu_NF,
-            C_in     => alu_CF,
+            enable   => ccr_enable,                           -- update flags when ALU indicates valid
+            Z_in     => ccr_in(0),
+            N_in     => ccr_in(1),
+            C_in     => ccr_in(2),
             preserve => preserve_s,
             restore  => sel_rtie,
             Z_out    => ccr_Z,
@@ -297,4 +301,5 @@ begin
     SP  <= sp_SP;
 
 END ARCHITECTURE;
+
 

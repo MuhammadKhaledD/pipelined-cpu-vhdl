@@ -11,6 +11,7 @@ entity EX_MEM_Register is
         RD2_E           : in std_logic_vector(31 downto 0) := x"0000_0000"; -- Data for Memory Write
         PC1_E           : in std_logic_vector(31 downto 0) := x"0000_0000"; -- PC + 1
         PSP_E           : in std_logic_vector(31 downto 0) := x"0000_0000"; -- Stack Pointer Value
+        SP_E           : in std_logic_vector(31 downto 0) := x"0000_0000"; -- Stack Pointer Value (if needed)   
         
         Rdst_E          : in std_logic_vector(2 downto 0) := "000"; -- Destination Register Address
         
@@ -33,7 +34,7 @@ entity EX_MEM_Register is
         RD2_M           : out std_logic_vector(31 downto 0) := x"0000_0000";
         PC1_M           : out std_logic_vector(31 downto 0) := x"0000_0000";
         PSP_M           : out std_logic_vector(31 downto 0) := x"0000_0000";
-        
+        SP_M          : out std_logic_vector(31 downto 0) := x"0000_0000";
         Rdst_M          : out std_logic_vector(2 downto 0) := "000";
         
         RET_M           : out std_logic := '0';
@@ -65,7 +66,7 @@ begin
             RegWriteEn_M <= '0'; WbSel_M <= '0'; MemWrite_M <= '0'; OutEn_M <= '0';
             PUSH_M <= '0'; POP_M <= '0'; INT1_M <= '0'; INT2_M <= '0';
             
-            ExOutM <= NOP_DATA; RD2_M <= NOP_DATA; PC1_M <= NOP_DATA; PSP_M <= NOP_DATA;
+            ExOutM <= NOP_DATA; RD2_M <= NOP_DATA; PC1_M <= NOP_DATA; PSP_M <= NOP_DATA; sP_M <= NOP_DATA;
             Rdst_M <= REG_ADDR_NOP;
 
         elsif falling_edge(clk) then
@@ -75,7 +76,7 @@ begin
                 RegWriteEn_M <= '0'; WbSel_M <= '0'; MemWrite_M <= '0'; OutEn_M <= '0';
                 PUSH_M <= '0'; POP_M <= '0'; INT1_M <= '0'; INT2_M <= '0';
                 
-                ExOutM <= NOP_DATA; RD2_M <= NOP_DATA; PC1_M <= NOP_DATA; PSP_M <= NOP_DATA;
+                ExOutM <= NOP_DATA; RD2_M <= NOP_DATA; PC1_M <= NOP_DATA; PSP_M <= NOP_DATA; sP_M <= NOP_DATA;
                 Rdst_M <= REG_ADDR_NOP;
 
             elsif enable = '1' then
@@ -84,11 +85,12 @@ begin
                 RegWriteEn_M <= RegWriteEn_E; WbSel_M <= WbSel_E; MemWrite_M <= MemWrite_E; OutEn_M <= OutEn_E;
                 PUSH_M <= PUSH_E; POP_M <= POP_E; INT1_M <= INT1_E; INT2_M <= INT2_E;
 
-                ExOutM <= ExOutE; RD2_M <= RD2_E; PC1_M <= PC1_E; PSP_M <= PSP_E;
+                ExOutM <= ExOutE; RD2_M <= RD2_E; PC1_M <= PC1_E; PSP_M <= PSP_E; SP_M <= SP_E;
                 Rdst_M <= Rdst_E;
             -- else (enable = '0'): Hold current values (Stall)
             end if;
         end if;
     end process;
 end Behavioral;
+
 

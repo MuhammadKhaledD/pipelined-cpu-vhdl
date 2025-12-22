@@ -444,6 +444,7 @@ ARCHITECTURE struct OF CPU IS
     signal sig_EX_MEM_RD2     : std_logic_vector(31 downto 0);
     signal sig_EX_MEM_PC1     : std_logic_vector(31 downto 0);
     signal sig_EX_MEM_PSP     : std_logic_vector(31 downto 0);
+    signal sig_EX_MEM_SP     : std_logic_vector(31 downto 0);
     signal sig_EX_MEM_Rdst    : std_logic_vector(2 downto 0);
     signal sig_EX_MEM_RET     : std_logic;
     signal sig_EX_MEM_RTI     : std_logic;
@@ -529,7 +530,7 @@ BEGIN
             RD2M          => sig_EX_MEM_RD2,
             RdstM         => sig_EX_MEM_Rdst,
             PSPM          => sig_EX_MEM_PSP,
-            SP            => sig_EX_SP,
+            SP            => sig_EX_MEM_SP,
             MemDataM      => sig_DataMemory_ReadData,
             ResetData     => sig_DataMemory_ReadData,
             ImmE          => sig_ID_EX_Imm,
@@ -765,6 +766,7 @@ BEGIN
             RD2_E       => sig_EX_RD2E,
             PC1_E       => sig_ID_EX_PC1,
             PSP_E       => sig_EX_PSP,
+            SP_E        => sig_EX_SP,
             Rdst_E      => sig_EX_RdstE,
             RETE        => sig_ID_EX_RetE,
             RTIE        => sig_ID_EX_RtiE,
@@ -783,6 +785,7 @@ BEGIN
             RD2_M       => sig_EX_MEM_RD2,
             PC1_M       => sig_EX_MEM_PC1,
             PSP_M       => sig_EX_MEM_PSP,
+            SP_M        => sig_EX_MEM_SP,
             Rdst_M      => sig_EX_MEM_Rdst,
             RET_M       => sig_EX_MEM_RET,
             RTI_M       => sig_EX_MEM_RTI,
@@ -871,5 +874,6 @@ BEGIN
     outPort <= sig_MEM_outPort;
 
 END ARCHITECTURE struct;
+
 
 

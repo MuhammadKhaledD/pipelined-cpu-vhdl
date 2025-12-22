@@ -193,7 +193,6 @@ begin
          when OPC_CALL =>
             comb_CallD <= '1';
             comb_IsImm <= '1';
-            comb_MemDLoadStore <= '1';
             comb_MemWriteD <= '1';
             comb_MemSelD <= '1';
 
@@ -275,7 +274,7 @@ begin
             comb_MemWriteD <= '1';
             comb_MemSelD <= '0';
             comb_AluOpD <= ALU_ADD;
-
+   
          when OPC_INT =>
             comb_IsImm <= '1';
             -- actual INT effects (mem/alu) come from FSM overrides
@@ -409,4 +408,5 @@ begin
    OutEnD      <= comb_OutEnD;
 
 end control_unit;
+
 

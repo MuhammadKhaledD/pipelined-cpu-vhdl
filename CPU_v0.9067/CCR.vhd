@@ -4,7 +4,7 @@ use ieee.std_logic_1164.all;
 entity CCR_Register is
     port(
         clk, rst          : in std_logic := '0';
-        enable            : in std_logic := '0';
+        enable            : in std_logic_vector := "000";
         Z_in, N_in, C_in  : in std_logic := '0'; -- from ALU
         preserve          : in std_logic := '0';  -- For interrupt (preserve current flags)
         restore           : in std_logic := '0';  -- For RTI (restore saved flags)
@@ -23,7 +23,7 @@ begin
             CCR         <= "000";
             saved_flags <= "000";
 
-        elsif rising_edge(clk) then
+        elsif falling_edge(clk) then
 
             -- Highest priority: restore on RTI
             if restore = '1' then
@@ -34,10 +34,17 @@ begin
                 saved_flags <= CCR;
 
             -- Normal update
-            elsif enable = '1' then
-                CCR(0) <= Z_in;
-                CCR(1) <= N_in;
-                CCR(2) <= C_in;
+            elsif enable /= "000" then
+                if enable(0) = '1' then
+                    CCR(0) <= Z_in;
+                end if;
+                if enable(1) = '1' then
+                    CCR(1) <= N_in;
+                end if;
+                if enable(2) = '1' then
+                    CCR(2) <= C_in;
+                end if;
+            
             end if;
 
         end if;
@@ -49,4 +56,5 @@ begin
     CCR_out  <= CCR;
 
 end Behavioral;
+
 
