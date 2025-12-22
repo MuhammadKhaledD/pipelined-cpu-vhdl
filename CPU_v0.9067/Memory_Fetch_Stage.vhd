@@ -76,7 +76,7 @@ ARCHITECTURE struct OF Memory_Fetch_Stages IS
 BEGIN
 
     -- outPort assignment
-    outPort <= ExOutM when OutEnM = '1' else (others => '0');
+    outPort <= ExOutM when OutEnM = '1';
     -------------------------------------------------
     -- Address MUX
     -------------------------------------------------
@@ -117,8 +117,8 @@ BEGIN
                 ExOutM                           when (S2M='0' and S1M='0' and S0M='1') else   -- 1
                 PSPM                             when (S2M='0' and S1M='1' and S0M='0') else   -- 2
                 SP                               when (S2M='0' and S1M='1' and S0M='1') else   -- 3
-                (31 downto 1 => '0') & '1'       when (reset='0' and interrupt='1') else    -- 4 → small mux = 0
-                (others => '0')   ;                                        -- 4 → small mux = 1
+                (31 downto 1 => '0') & '1'       when (reset='0' and interrupt='1') else    -- 4 ? small mux = 0
+                (others => '0')   ;                                        -- 4 ? small mux = 1
 
     -- -------------------------------------------------
     -- -- Write Data MUX
@@ -139,3 +139,4 @@ BEGIN
     EXOutWM <= ExOutM;
 
 END ARCHITECTURE;
+

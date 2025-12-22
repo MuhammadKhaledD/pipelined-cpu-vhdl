@@ -95,7 +95,6 @@ constant ALUOPD_WIDTH     : natural := 4;
 
    signal Int1_reg            : std_logic := '0';
    signal Int2_reg            : std_logic := '0';
-   signal MemD_override       : std_logic := '0';
    signal MemWrite_override   : std_logic := '0';
    signal AluOp_override      : std_logic_vector(ALUOPD_WIDTH-1 downto 0) := (others => '0');
 
@@ -297,6 +296,10 @@ begin
    variable int_state  : integer range 0 to 2 := 0;
 
    begin
+   SwapD_reg <= (others => '0');
+   SwapCtrl_reg <= '0'; 
+   RegWrite_override <= '0';
+   AluOp_override <= (others => '0');
       if rising_edge(clk) then
          -- SWAP FSM
          if swap_state = 0 then
@@ -332,13 +335,13 @@ begin
             SwapCtrl_reg <= '0';
             RegWrite_override <= '0';
             AluOp_override <= (others => '0');
-         elsif swap_state = 1 then
+         elsif swap_state = 1 and int_state = 0 then
             -- phase1
             SwapD_reg <= std_logic_vector(to_unsigned(1, SWAPD_WIDTH)); -- "01"
             SwapCtrl_reg <= '1';
             RegWrite_override <= '1'; -- SWAP is WB both cycles
             AluOp_override <= ALU_R2;
-         else
+         elsif swap_state = 2 and int_state = 0 then
             -- phase2
             SwapD_reg <= std_logic_vector(to_unsigned(2, SWAPD_WIDTH)); -- "10"
             SwapCtrl_reg <= '0';
@@ -350,20 +353,17 @@ begin
          if int_state = 0 then
             Int1_reg <= '0';
             Int2_reg <= '0';
-            MemD_override <= '0';
             MemWrite_override <= '0';
          elsif int_state = 1 then
             -- phase1
             Int1_reg <= '1';
             Int2_reg <= '0';
-            MemD_override <= '1';
             MemWrite_override <= '1'; -- store
             AluOp_override <= (others => '0');
          else
             -- phase2
             Int1_reg <= '0';
             Int2_reg <= '1';
-            MemD_override <= '1';
             MemWrite_override <= '0';
             AluOp_override <= ALU_ADD_PLUS2; -- perform +2 on index ig
          end if;
@@ -383,7 +383,7 @@ begin
 
    -- Simple OR combinations
    RegWriteEnD <= comb_RegWriteEnD or RegWrite_override;
-   MemDLoadStore <= comb_MemDLoadStore or MemD_override;
+   MemDLoadStore <= comb_MemDLoadStore;
    MemWriteD <= comb_MemWriteD or MemWrite_override;
 
    -- For AluOp: override if non-zero, else combinational
@@ -409,3 +409,4 @@ begin
    OutEnD      <= comb_OutEnD;
 
 end control_unit;
+

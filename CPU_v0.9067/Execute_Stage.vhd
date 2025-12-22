@@ -184,7 +184,7 @@ begin
     --alu_SrcB <= ImmE when sel_srcb_imm = '1' else RD2;
 
     alu_SrcB <= RD2 when ForwardB = "00" and sel_srcb_imm = '0' else
-                ImmE when ForwardB = "00" and sel_srcb_imm = '1' else
+                ImmE when sel_srcb_imm = '1' else
                 ExoutM when ForwardB = "10" and sel_srcb_imm = '0' else
                 RegDataWB when ForwardB = "01" and  sel_srcb_imm = '0' else
                 RD2;  -- default fallback
@@ -263,7 +263,10 @@ begin
     ----------------------------------------------------------------
     -- Forward imm and rd2 to EX stage outputs (combinational forwarding)
     ----------------------------------------------------------------
-    RD2E  <= RD2;
+    RD2E  <= RD2 when ForwardB = "00" else
+                ExoutM when ForwardB = "10" else
+                RegDataWB when ForwardB = "01" else
+                RD2;  -- default fallback;
 
     ----------------------------------------------------------------
     -- RdstE selection (SwapE: "00" => Rdst, "01" => Rsrc1, "10" => Rsrc2)
@@ -294,3 +297,4 @@ begin
     SP  <= sp_SP;
 
 END ARCHITECTURE;
+

@@ -47,7 +47,7 @@ begin
         MEM_WB_flush <= '0';
         NOP_ctrl <= '0';
 
-       MEM_operation := POPM or PUSM or RTIM or RETM or CALLM or Mem or INT1M or INT2M;
+       MEM_operation := POPM or PUSM or RTIM or RETM or CALLM or Mem or INT1M;
 
         -- Load-Use Hazard Detection
         if ID_EX_LoadUse = '1' and ID_EX_Rd /= "000" then
@@ -64,7 +64,7 @@ begin
         end if;
 
         -- Memory Access Hazards for PUSH/POP/RTI/CALL/RET/INT/MEM
-        if MEM_operation = '1' and CU_IsIMM = '0' then
+        if MEM_operation = '1' and CU_IsIMM = '0' and branch = '0' then
             PC_enable <= '0';
             NOP_ctrl <= '1';
         end if;
@@ -74,6 +74,9 @@ begin
             PC_enable <= '0';
             IF_ID_enable <= '0';
             ID_EX_enable <= '0';
+        end if;
+        if MEM_operation = '0' and CU_IsIMM = '1' then
+            NOP_ctrl <= '1';
         end if;
 
         -- RET and RTI handling
@@ -86,6 +89,7 @@ begin
         -- Interrupt Handling
         -- first stall so that the instruction in IF stage is not lost to take one more cycle to save state
         if INT1D = '1' then
+            PC_enable <= '0';
             IF_ID_enable <= '0';
         end if;
         -- second pc write here in mem stage of the index(imm) fetch
@@ -99,3 +103,4 @@ begin
 
 
 end Behavioral;
+
