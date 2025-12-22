@@ -6,6 +6,7 @@ ENTITY Decode_Stage  IS
     PORT (
         clk : IN STD_LOGIC;
         rst : IN STD_LOGIC;
+        hwint : IN STD_LOGIC;
         -- RegWriteENWB : IN STD_LOGIC;
         -- RegWriteWB : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
         -- RegDataWB : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -26,6 +27,8 @@ ENTITY Decode_Stage  IS
         PushD         : out std_logic;
         Int1D         : out std_logic;
         Int2D         : out std_logic;
+        hwint1D       : out std_logic;
+        hwint2D       : out std_logic;
         CallD         : out std_logic;
         MemDLoadStore : out std_logic;
         MemSelD       : out std_logic;
@@ -50,6 +53,7 @@ ARCHITECTURE struct OF Decode_Stage IS
        port(
             clk    : in  std_logic;
             opcode : in  std_logic_vector(4 downto 0);
+            hwint  : in  std_logic;
 
             SwapCtrl      : out std_logic;
             IsImm         : out std_logic;
@@ -60,6 +64,8 @@ ARCHITECTURE struct OF Decode_Stage IS
             PushD         : out std_logic;
             Int1D         : out std_logic;
             Int2D         : out std_logic;
+            hwint1D       : out std_logic;
+            hwint2D       : out std_logic;
             CallD         : out std_logic;
             MemDLoadStore : out std_logic;
             MemSelD       : out std_logic;
@@ -132,6 +138,7 @@ begin
         port map (
             clk    => clk,
             opcode => instruction(29 downto 25),
+            hwint  => hwint,
 
             SwapCtrl      => SwapCtrl,
             IsImm         => IsImm,
@@ -142,6 +149,8 @@ begin
             PushD         => PushD,
             Int1D         => Int1D,
             Int2D         => Int2D,
+            hwint1D       => hwint1D,
+            hwint2D       => hwint2D,
             CallD         => CallD,
             MemDLoadStore => MemDLoadStore,
             MemSelD       => MemSelD,

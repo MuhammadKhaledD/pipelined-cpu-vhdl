@@ -380,6 +380,8 @@ ARCHITECTURE struct OF CPU IS
     signal sig_ID_PushD    : std_logic;
     signal sig_ID_Int1D    : std_logic;
     signal sig_ID_Int2D    : std_logic;
+    signal sig_ID_hwint1D   : std_logic;
+    signal sig_ID_hwint2D   : std_logic;
     signal sig_ID_CallD    : std_logic;
     signal sig_ID_MemAccess : std_logic;
     signal sig_ID_MemSelD  : std_logic;
@@ -422,6 +424,8 @@ ARCHITECTURE struct OF CPU IS
     signal sig_ID_EX_RetE     : std_logic;
     signal sig_ID_EX_Int1E    : std_logic;
     signal sig_ID_EX_Int2E    : std_logic;
+    signal sig_ID_EX_hwint1E   : std_logic;
+    signal sig_ID_EX_hwint2E   : std_logic;
     signal sig_ID_EX_PopE     : std_logic;
     signal sig_ID_EX_PushE    : std_logic;
     signal sig_ID_EX_MemE     : std_logic;
@@ -459,6 +463,8 @@ ARCHITECTURE struct OF CPU IS
     signal sig_EX_MEM_POP     : std_logic;
     signal sig_EX_MEM_INT1    : std_logic;
     signal sig_EX_MEM_INT2    : std_logic;
+    signal sig_EX_MEM_hwint1   : std_logic;
+    signal sig_EX_MEM_hwint2   : std_logic;
 
     -- Memory stage outputs  
     signal sig_MEM_RegWriteEnWM : std_logic;
@@ -510,7 +516,6 @@ BEGIN
         port map (
             clk           => clk,
             reset         => rst,
-            interrupt     => hwInt,
             Branch        => sig_EX_Branch,
             SwapCtrl      => sig_ID_SwapCtrl,
             HLT           => sig_ID_HLT,
@@ -520,6 +525,8 @@ BEGIN
             PUSHM         => sig_EX_MEM_PUSH,
             INT1M         => sig_EX_MEM_INT1,
             INT2M         => sig_EX_MEM_INT2,
+            hwint1M       => sig_EX_MEM_hwint1,
+            hwint2M       => sig_EX_MEM_hwint2, 
             CALLM         => sig_EX_MEM_CALL,
             MemM          => sig_EX_MEM_MEM,
             MemSelM       => sig_EX_MEM_MemSel,
@@ -580,6 +587,7 @@ BEGIN
             clk           => clk,
             rst           => rst,
             instruction   => sig_IF_ID_instruction,
+            hwint         => hwInt, 
             RSrc1D        => sig_ID_Rsrc1,
             RSrc2D        => sig_ID_Rsrc2,
             Rdst          => sig_ID_Rdst,
@@ -592,6 +600,8 @@ BEGIN
             PushD         => sig_ID_PushD,
             Int1D         => sig_ID_Int1D,
             Int2D         => sig_ID_Int2D,
+            hwint1D       => sig_ID_hwint1D,
+            hwint2D       => sig_ID_hwint2D,
             CallD         => sig_ID_CallD,
             MemDLoadStore => sig_ID_MemAccess,
             MemSelD       => sig_ID_MemSelD,
@@ -606,7 +616,8 @@ BEGIN
             JmpD          => sig_ID_JmpD,
             ExOutSelD     => sig_ID_ExOutSel,
             LoadUseD      => sig_ID_LoadUse,
-            OutEnD        => sig_ID_OutEn
+            OutEnD        => sig_ID_OutEn,
+
         );
 
     -- RegFile is inside Decode_Stage, instantiate separately for write-back
@@ -642,6 +653,8 @@ BEGIN
             PUSHD       => sig_ID_PushD,
             INT1D       => sig_ID_Int1D,
             INT2D       => sig_ID_Int2D,
+            hwint1D     => sig_ID_hwint1D,
+            hwint2D     => sig_ID_hwint2D,
             CALLD       => sig_ID_CallD,
             MEMD        => sig_ID_MemAccess,
             MemSelD     => sig_ID_MemSelD,
@@ -671,6 +684,8 @@ BEGIN
             PUSH_E      => sig_ID_EX_PushE,
             INT1_E      => sig_ID_EX_Int1E,
             INT2_E      => sig_ID_EX_Int2E,
+            hwint1E     => sig_ID_EX_hwint1E,
+            hwint2E     => sig_ID_EX_hwint2E,
             CALL_E      => sig_ID_EX_CallE,
             MEM_E       => sig_ID_EX_MemE,
             MemSel_E    => sig_ID_EX_MemSelE,
@@ -726,7 +741,6 @@ BEGIN
             Rdst        => sig_ID_EX_Rdst,
             ImmE        => sig_ID_EX_Imm,
             InputPort   => inPort,
-            interrupt   => hwInt,
             ExoutM      => sig_EX_MEM_ExOut,
             RegDataWB   => sig_WB_RegDataWB,
             ForwardA    => sig_ForwardA,
@@ -743,6 +757,7 @@ BEGIN
             RtiE        => sig_ID_EX_RtiE,
             RetE        => sig_ID_EX_RetE,
             Int1E       => sig_ID_EX_Int1E,
+            hwint1E     => sig_ID_EX_hwint1E,
             PopE        => sig_ID_EX_PopE,
             PushE       => sig_ID_EX_PushE,
             Branch      => sig_EX_Branch,
@@ -781,6 +796,8 @@ BEGIN
             POP_E       => sig_ID_EX_PopE,
             INT1_E      => sig_ID_EX_Int1E,
             INT2_E      => sig_ID_EX_Int2E,
+            hwint1DE     => sig_ID_EX_hwint1E,
+            hwint2DE     => sig_ID_EX_hwint2E,
             ExOutM      => sig_EX_MEM_ExOut,
             RD2_M       => sig_EX_MEM_RD2,
             PC1_M       => sig_EX_MEM_PC1,
@@ -799,7 +816,9 @@ BEGIN
             PUSH_M      => sig_EX_MEM_PUSH,
             POP_M       => sig_EX_MEM_POP,
             INT1_M      => sig_EX_MEM_INT1,
-            INT2_M      => sig_EX_MEM_INT2
+            INT2_M      => sig_EX_MEM_INT2,
+            hwint1M     => sig_EX_MEM_hwint1,
+            hwint2M     => sig_EX_MEM_hwint2
         );
 
 
@@ -852,8 +871,11 @@ BEGIN
             RETM         => sig_EX_MEM_RET,
             CALLM        => sig_EX_MEM_CALL,
             INT1D        => sig_ID_Int1D,
+            hwint1D      => sig_ID_hwint1D,
             INT1M        => sig_EX_MEM_INT1,
             INT2M        => sig_EX_MEM_INT2,
+            hwint1M      => sig_EX_MEM_hwint1,
+            hwint2M      => sig_EX_MEM_hwint2,
             ID_EX_LoadUse => sig_ID_EX_LoadUse,
             IF_ID_Rs1    => sig_ID_Rsrc1,
             IF_ID_Rs2    => sig_ID_Rsrc2,
@@ -865,7 +887,7 @@ BEGIN
             ID_EX_flush  => sig_ID_EX_flush,
             EX_MEM_flush => sig_EX_MEM_flush,
             MEM_WB_flush => sig_MEM_WB_flush,
-            NOP_ctrl     => sig_NOP_ctrl
+            NOP_ctrl     => sig_NOP_ctrl,
         );
 
     -- ================================================================
