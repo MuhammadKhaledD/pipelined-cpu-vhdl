@@ -1,5 +1,0 @@
-; Basic instructions test
-NOP
-SETC
-RET
-HLT
