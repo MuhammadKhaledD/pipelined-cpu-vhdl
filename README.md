@@ -24,7 +24,7 @@ A complete 5-stage pipelined CPU implementation in VHDL with a custom instructio
 
 
 
-> For a clearer and scalable view of the architecture, open the block diagram SVG files on your PC (You can find it in design folder). This allows full zoom and editing capabilities.
+> For a clearer and scalable view of the architecture, open the block diagram SVG files on your PC (You can find it in design folder u can find dark and light one). This allows full zoom and editing capabilities.
 
 
 ### Instruction Set
